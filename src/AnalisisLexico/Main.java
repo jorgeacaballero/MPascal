@@ -29,7 +29,7 @@ public class Main {
 	public static void exec() {
 		/* Open the input and output file.  */
 		FileReader srcFile = null;
-		String srcName = finalcompilator.Main.prgName + ".pascal";
+		String srcName = mpascal.Main_Pascal_EU.prgName + ".pascal";
         //String srcName = "./compiler/src/compiler/lexanal";
 		try { srcFile = new FileReader(srcName); }
 		catch (FileNotFoundException _) { Report.error("Source file '" + srcName + "' cannot be opened.", 1); }

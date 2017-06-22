@@ -29,7 +29,7 @@ parser code {:
 
         @Override
 	public void syntax_error(Symbol s){
-            System.err.print("Sinctacti errors: " ); 
+            System.err.print("Syntax errors: " ); 
             //expected();
             //System.err.println("pero se encontró el token \'" + sym.terminalNames[s.sym] + "\' en la Linea: " + s.left + ", column: " + s.right + ". " ); 
 	}
@@ -88,14 +88,6 @@ action code {:
 terminal Element  Write;
 terminal Element  Read;
 
-//Tipos de datos
-terminal Element  Array;
-terminal Element  Of;
-terminal Element  Var;
-terminal String   Boolean;
-terminal String   Char;
-terminal String   Integer;
-terminal String   String;
 
 //Operadores
 terminal String   Equal;
@@ -127,6 +119,14 @@ terminal Element  While;
 terminal Element  Repeat;
 terminal Element  Until;
 
+//Tipos de datos
+terminal Element  Array;
+terminal Element  Of;
+terminal Element  Var;
+terminal String   Boolean;
+terminal String   Char;
+terminal String   Integer;
+terminal String   String;
 //Otros
 terminal String   LBracket;
 terminal String   RBracket;

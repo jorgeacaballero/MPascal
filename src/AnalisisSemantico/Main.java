@@ -18,7 +18,7 @@ public class Main {
 	public static void exec() {
 		/* Open the input and output file. */
 		FileReader srcFile = null;
-		String srcName = finalcompilator.Main.prgName + ".pascal";
+		String srcName = mpascal.Main_Pascal_EU.prgName + ".pascal";
 		try {
 			srcFile = new FileReader(srcName);
 		} catch (FileNotFoundException _) {
