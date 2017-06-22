@@ -6,7 +6,7 @@ import AST.*;
 
 public class SemDesc {
 
-	/** Nivo vidnosti. */
+	
 	private static HashMap<AbsTree, Integer> scope = new HashMap<AbsTree, Integer>();
 
 	public static void setScope(AbsTree node, int nodeScope) {
@@ -18,7 +18,7 @@ public class SemDesc {
 		return nodeScope;
 	}
 	
-	/** Deklaracija imena. */
+	
 	private static HashMap<AbsTree, AbsDecl> nameDecl = new HashMap<AbsTree, AbsDecl>();
 	
 	public static void setNameDecl(AbsTree node, AbsDecl decl) {
@@ -30,7 +30,7 @@ public class SemDesc {
 		return decl;
 	}
 
-	/** Vrednost konstante. */
+
 	private static HashMap<AbsTree, Integer> actualConst = new HashMap<AbsTree, Integer>();
 	
 	public static void setActualConst(AbsTree constDecl, Integer value) {
@@ -42,7 +42,7 @@ public class SemDesc {
 		return value;
 	}
 		
-	/** Opis tipa. */
+
 	private static HashMap<AbsTree, SemType> acturalType = new HashMap<AbsTree, SemType>();
 
 	public static void setActualType(AbsTree node, SemType type) {

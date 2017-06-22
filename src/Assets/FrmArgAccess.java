@@ -4,16 +4,16 @@ import java.io.*;
 
 import AST.*;
 
-/** Dostop do argumenta funkcije.  */
+
 public class FrmArgAccess extends FrmAccess {
 
-	/** Opis argumenta.  */
+
 	public AbsVarDecl var;
 
-	/** Klicni zapis funkcije, v kateri je argument deklariran.  */
+
 	public FrmFrame frame;
 
-	/** Odmik od FPja.  */
+
 	public int offset;
 
 	public FrmArgAccess(AbsVarDecl var, FrmFrame frame) {

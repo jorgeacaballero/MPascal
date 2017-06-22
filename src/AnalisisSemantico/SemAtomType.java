@@ -2,7 +2,7 @@ package AnalisisSemantico;
 
 import java.io.*;
 
-/** Opis atomarnih tipov. */
+
 public class SemAtomType extends SemType {
 	
 	public static final int BOOL = 0;
@@ -10,7 +10,7 @@ public class SemAtomType extends SemType {
 	public static final int INT = 2;
 	public static final int VOID = 3;
 	
-	/* Tip. */
+	
 	public int type;
 	
 	public SemAtomType(int type) {

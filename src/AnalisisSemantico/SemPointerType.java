@@ -2,10 +2,10 @@ package AnalisisSemantico;
 
 import java.io.*;
 
-/** Opis kazalcev. */
+
 public class SemPointerType extends SemType {
 	
-	/** Tip elementa. */
+	
 	public SemType type;
 	
 	public SemPointerType(SemType type) {

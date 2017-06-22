@@ -1,14 +1,11 @@
 package AST;
 
-/**
- * Deklaracija tipa.
- */
 public class AbsTypeDecl extends AbsDecl {
 
-	/** Ime tipa. */
+	
 	public AbsDeclName name;
 	
-	/** Tip tipa. */
+	
 	public AbsTypeExpr type;
 	
 	public AbsTypeDecl(AbsDeclName name, AbsTypeExpr type) {

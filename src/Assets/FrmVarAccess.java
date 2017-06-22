@@ -4,17 +4,17 @@ import java.io.*;
 
 import AST.*;
 
-/** Dostop do globalne spremenljivke.  */
+
 public class FrmVarAccess extends FrmAccess {
 
-	///// HAS VALUE
+
 	public int hasValue = 0;
 	
 	
-	/** Opis spremenljivke.  */
+
 	public AbsVarDecl var;
 
-	/** Labela spremenljivke.  */
+
 	public FrmLabel label;
 
 	public FrmVarAccess(AbsVarDecl var) {

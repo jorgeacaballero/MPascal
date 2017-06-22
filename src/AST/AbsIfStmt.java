@@ -1,17 +1,15 @@
 package AST;
 
-/**
- * Stavek 'if'.
- */
+
 public class AbsIfStmt extends AbsStmt {
 	
-	/** Pogoj. */
+
 	public AbsValExpr cond;
 
-	/** Stavek ob izpolnjenem pogoju. */
+
 	public AbsStmt thenStmt;
 	
-	/** Stavek ob neizpolnjenem pogoju. */
+
 	public AbsStmt elseStmt;
 	
 	public AbsIfStmt(AbsValExpr cond, AbsStmt thenStmt, AbsStmt elseStmt) {

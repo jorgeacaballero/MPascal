@@ -1,6 +1,6 @@
 package AnalisisSemantico;
 
-/** Ob poskusu brisanja imena, ki ni deklarirano na trenutnem nivoju. */
+
 public class SemIllegalDeleteException extends Exception {
 
 	static final long serialVersionUID = 0l;

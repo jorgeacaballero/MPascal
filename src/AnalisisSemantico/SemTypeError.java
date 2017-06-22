@@ -2,7 +2,7 @@ package AnalisisSemantico;
 
 import java.io.*;
 
-/** Opis napake. */
+
 public class SemTypeError extends SemType {
 
 	@Override

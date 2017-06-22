@@ -3,7 +3,7 @@ package AnalisisSemantico;
 import java.io.*;
 import java.util.*;
 
-/** Opis podprogramov. */
+
 public class SemSubprogramType extends SemType {
 	
 	private Vector<SemType> parTypes;

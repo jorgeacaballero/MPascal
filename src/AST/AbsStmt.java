@@ -1,8 +1,6 @@
 package AST;
 
 /**
- * Stavki.
- * 
  * @see AbsAssignStmt
  * @see AbsBeginStmt
  * @see AbsExprStmt

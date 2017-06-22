@@ -1,10 +1,8 @@
 package AST;
-/**
- * Izrazi za opis tipov: ime.
- */
+
 public class AbsTypeName extends AbsTypeExpr {
 	
-	/* Ime. */
+	
 	public String name;
 	
 	public AbsTypeName(String name) {

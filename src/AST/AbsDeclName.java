@@ -1,11 +1,8 @@
 package AST;
 
-/**
- * Deklaracije: ime.
- */
 public class AbsDeclName extends AbsDecl {
 
-	/* Ime. */
+	
 	public String name;
 	
 	public AbsDeclName(String name) {

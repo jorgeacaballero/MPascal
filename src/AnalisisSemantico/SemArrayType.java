@@ -2,16 +2,16 @@ package AnalisisSemantico;
 
 import java.io.*;
 
-/** Opis tabel. */
+
 public class SemArrayType extends SemType {
 	
-	/** Tip elementa. */
+
 	public SemType type;
 	
-	/** Spodnja meja. */
+
 	public int loBound;
 	
-	/** Zgornja meja. */
+
 	public int hiBound;
 	
 	public SemArrayType(SemType type, int loBound, int hiBound) {

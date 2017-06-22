@@ -1,19 +1,17 @@
 package AST;
 
-/** Stavek for.
- */
 public class AbsForStmt extends AbsStmt {
 
-	/** Ime zancne spremenljivke. */
+
 	public AbsValName name;
 	
-	/** Spodnja meja. */
+
 	public AbsValExpr loBound;
 	
-	/** Zgornja meja. */
+
 	public AbsValExpr hiBound;
 	
-	/** Stavek. */
+
 	public AbsStmt stmt;
 	
 	public AbsForStmt(AbsValName name, AbsValExpr loBound, AbsValExpr hiBound, AbsStmt stmt) {

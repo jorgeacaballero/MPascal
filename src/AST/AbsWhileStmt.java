@@ -1,14 +1,11 @@
 package AST;
 
-/**
- * Stavek 'while'.
- */
 public class AbsWhileStmt extends AbsStmt {
 
-	/** Pogoj. */
+	
 	public AbsValExpr cond;
 	
-	/** Stavek. */
+	
 	public AbsStmt stmt;
 	
 	public AbsWhileStmt(AbsValExpr cond, AbsStmt stmt) {

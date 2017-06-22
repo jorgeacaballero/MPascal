@@ -67,7 +67,7 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsAtomConst acceptor) {
-		 // izrazi za opis vrednosti - konstante atomarnih tipov.
+		 
 		
 		switch(acceptor.type) {
 		case AbsAtomConst.INT:
@@ -143,7 +143,7 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsCallExpr acceptor) {
-		 // Izrazi za opis vrednosti - klic podprograma.
+		 
 		
 		AbsDecl decl = SemTable.fnd(acceptor.name.name);
 		if(decl == null)
@@ -157,7 +157,7 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsConstDecl acceptor) {
-		 // Deklaracija konstante.
+		 
 		try {
 			SemTable.ins(acceptor.name.name, acceptor);
 		} catch(SemIllegalInsertException e) {
@@ -179,7 +179,7 @@ public class SemNameResolver implements AbsVisitor {
 	public void visit(AbsDecls acceptor) {
 		
 		/**
-		 * Deklaracije.
+		 * 
 		 * 
 		 * @see AbsConstDecl
 		 * @see AbsDeclName
@@ -196,18 +196,18 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsExprStmt acceptor) {
-		// klic procedure
+		
 		acceptor.expr.accept(this);
 	}
 
 	@Override
 	public void visit(AbsForStmt acceptor) {
-		// ime zancne spremenljivke - acceptor.name
+		
 		AbsDecl decl = SemTable.fnd(acceptor.name.name);
 		if(decl == null) {
 			error("For loop variable " + acceptor.name.name + " not declared!", acceptor);
 		}
-		//SemDesc.setNameDecl(node, decl);
+		/
 		
 		acceptor.name.accept(this);
 		acceptor.hiBound.accept(this);
@@ -218,10 +218,10 @@ public class SemNameResolver implements AbsVisitor {
 	@Override
 	public void visit(AbsFunDecl acceptor) {
 		
-		// glava funkcije
+		
 		acceptor.type.accept(this);
 		
-		// telo funkcije
+		
 		
 		SemTable.newScope();
 		try {
@@ -369,7 +369,7 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsUnExpr acceptor) {
-		// izrazi za opis vrednosti - izrazi z unarnim operatorjem.
+		
 		acceptor.expr.accept(this);
 		
 		Integer val = SemDesc.getActualConst(acceptor.expr);
@@ -398,11 +398,11 @@ public class SemNameResolver implements AbsVisitor {
 
 	@Override
 	public void visit(AbsValName acceptor) {
-		// izraz za opis vrednosti - ime
 		
-		// najdemo deklaracijo v simbolni tabeli
+		
+		
 		AbsDecl name = SemTable.fnd(acceptor.name);
-		// povezava z deklaracijo
+		
 		
 		if(name == null){
 			error("\""+acceptor.name+"\"" + " not declared!", acceptor); 

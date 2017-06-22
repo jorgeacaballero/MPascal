@@ -10,14 +10,12 @@ import mpascal.*;
 
 public class Main {
 
-	/** Abstraktno sintaksno drevo prevajanega programa. */
+	
 	public static AbsTree absTree = null;
 
-	/**
-	 * Izvede prevajanje do faze semanticne analize.
-	 */
+	
 	public static void exec() {
-		/* Odpremo vhodno datoteko. */
+	
 		FileReader srcFile = null;
 		String srcName = mpascal.Main_Pascal_EU.prgName + ".pascal";
 		try {
@@ -39,7 +37,7 @@ public class Main {
 		program.accept(nameResolver);
 		program.accept(typeChecker);
 
-		/* Zapremo vhodno datoteko. */
+	
 		try {
 			srcFile.close();
 		} catch (IOException _) {
@@ -49,7 +47,7 @@ public class Main {
 			Report.error("Too many errors during semantic analysis.", 1);
 		}
 		
-		/* Izracunamo klicne zapise in izpi"semo rezultat. */
+		
 		PrintStream xml = XML.open("frames");
 		program.accept(new FrmEvaluator());
 		program.accept(new FrmPrintXML(xml));

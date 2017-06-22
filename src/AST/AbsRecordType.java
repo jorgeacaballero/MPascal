@@ -1,8 +1,5 @@
 package AST;
 
-/**
- * Izrazi za opis tipov: zapisi.
- */
 public class AbsRecordType extends AbsTypeExpr {
 	
 	public AbsDecls fields;

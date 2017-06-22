@@ -2,12 +2,9 @@ package AST;
 
 import java.util.*;
 
-/**
- * Deklaracije: seznam deklaracij.
- */
 public class AbsDecls extends AbsTree {
 	
-	/** Seznam deklaracij. */
+	
 	public LinkedList<AbsDecl> decls;
 	
 	public AbsDecls() {

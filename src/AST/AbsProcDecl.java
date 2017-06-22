@@ -1,20 +1,17 @@
 package AST;
 
-/**
- * Deklaracije: procedura.
- */
 public class AbsProcDecl extends AbsDecl {
 
-	/** Ime. */
+
 	public AbsDeclName name;
 	
-	/** Parametri. */
+
 	public AbsDecls pars;
 	
-	/** Deklaracije. */
+
 	public AbsDecls decls;
 	
-	/** Stavek. */
+
 	public AbsBlockStmt stmt;
 	
 	public AbsProcDecl(AbsDeclName name, AbsDecls pars, AbsDecls decls, AbsBlockStmt stmt) {

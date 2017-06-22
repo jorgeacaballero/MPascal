@@ -2,7 +2,7 @@ package AST;
 
 public class AbsAlloc extends AbsValExpr {
 
-	/** Tip dodoeljenega podatka, */
+	
 	public AbsTypeExpr type;
 	
 	public AbsAlloc(AbsTypeExpr type) {

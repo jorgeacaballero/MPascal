@@ -4,13 +4,13 @@ import java.io.*;
 
 import AST.*;
 
-/** Dostop do komponente strukture.  */
+
 public class FrmCmpAccess extends FrmAccess {
 
-	/** Opis komponente.  */
+	
 	public AbsVarDecl cmp;
 
-	/** Odmik od zacentega naslova strukture.  */
+	
 	public int offset;
 
 	public FrmCmpAccess(AbsVarDecl cmp, int offset) {

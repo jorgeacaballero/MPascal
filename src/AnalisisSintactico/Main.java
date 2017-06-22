@@ -14,7 +14,7 @@ public class Main {
 	public static String[] pascalNontNames;
 
 	static {
-		/* Pripravimo imena vrst vmesnih simbolov.  */
+		
 		PascalTok pascalTok = new PascalTok();
 		Field[] pascalToks = pascalTok.getClass().getDeclaredFields();
 		pascalNontNames = new String[pascalToks.length];
@@ -31,7 +31,7 @@ public class Main {
 		}
 	}
 
-	/** Izvede prevajanje do vkljucno faze sintaksne analize. */
+	
 	public static void exec() {
 		/* Open the input and output file.  */
 		FileReader srcFile = null;
@@ -51,7 +51,7 @@ public class Main {
 			Report.error("Error while testing syntax analyzer.", 1);
 		}
 
-		/* Zapremo obe datoteki.  */
+		
         XML.close("synanal", xml);
         try { srcFile.close(); }
 		catch (IOException _) { Report.error("Source file '" + srcName + "' cannot be opened.", 1); }

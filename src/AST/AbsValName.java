@@ -1,11 +1,9 @@
 package AST;
 
-/**
- * Izrazi za opis vrednosti: ime.
- */
+
 public class AbsValName extends AbsValExpr {
 	
-	/* Ime. */
+	
 	public String name;
 	
 	public AbsValName(String name) {

@@ -1,6 +1,6 @@
 package Assets;
 
-/** Opis zacasne spremenljivke v programu.  */
+
 public class FrmTemp {
 
 	private static int count = 0;

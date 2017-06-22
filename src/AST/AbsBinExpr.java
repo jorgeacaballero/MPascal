@@ -1,8 +1,6 @@
 package AST;
 
-/**
- * Izrazi za opis vrednosti: izrazi z binarnim operatorjem.
- */
+
 public class AbsBinExpr extends AbsValExpr {
 
 	public static final int ADD = 0;
@@ -20,13 +18,13 @@ public class AbsBinExpr extends AbsValExpr {
 	public static final int ARRACCESS = 12;
 	public static final int RECACCESS = 13;
 	
-	/* Binarni operator. */
+	
 	public int oper;
 	
-	/* Levi podizraz. */
+	
 	public AbsValExpr fstExpr;
 	
-	/* Desni podizraz. */
+	
 	public AbsValExpr sndExpr;
 	
 	public AbsBinExpr(int oper, AbsValExpr fstExpr, AbsValExpr sndExpr) {

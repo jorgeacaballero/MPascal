@@ -1,17 +1,14 @@
 package AST;
 
-/**
- * Opis programa.
- */
 public class AbsProgram extends AbsTree {
 
-	/** Ime programa. */
+	
 	public AbsDeclName name;
 	
-	/** Deklaracije. */
+	
 	public AbsDecls decls;
 	
-	/** Blok. */
+	
 	public AbsBlockStmt stmt;
 	
 	public AbsProgram(AbsDeclName name, AbsDecls decls, AbsBlockStmt stmt) {

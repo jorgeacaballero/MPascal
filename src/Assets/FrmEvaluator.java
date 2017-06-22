@@ -6,14 +6,7 @@ import AnalisisSemantico.*;
 public class FrmEvaluator implements AbsVisitor {
 	
 	public int sArg;
-	/*
-		- Vsak klicni zapis naj bo predstavljen z objektom razreda FrmFrame, 
-		sestavljen pa naj bo tako, kot smo se dogovorili na predavanjih.
-		
-		- Vsak dostop do spremenljivke naj bo predstavljen z objektom razreda FrmAccess 
-		(FrmVarAccess za globalne spremenljivke, FrmLocAccess za lokalne spremenljivke, 
-		FrmArgAccess za argumente funkcij, FrmCmpAccess za komponente struktur).
-	 */
+	
 	
 	public void addFunFrame(String name) {
 		AbsDecl decl = SemTable.fnd(name);

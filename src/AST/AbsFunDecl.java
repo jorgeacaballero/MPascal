@@ -1,23 +1,20 @@
 package AST;
 
-/**
- * Deklaracije: funkcija.
- */
 public class AbsFunDecl extends AbsDecl {
 
-	/** Ime. */
+
 	public AbsDeclName name;
 	
-	/** Parametri. */
+
 	public AbsDecls pars;
 	
-	/** Tip. */
+
 	public AbsTypeExpr type;
 	
-	/** Deklaracije. */
+
 	public AbsDecls decls;
 	
-	/** Stavek. */
+
 	public AbsBlockStmt stmt;
 	
 	public AbsFunDecl(AbsDeclName name, AbsDecls pars, AbsTypeExpr type, AbsDecls decls, AbsBlockStmt stmt) {

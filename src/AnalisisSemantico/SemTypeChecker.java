@@ -38,12 +38,6 @@ public class SemTypeChecker implements AbsVisitor {
 	
 	@Override
 	public void visit(AbsAlloc acceptor) {
-		/*
-Izraz ''[ type ]'' za dodeljevanje pomnilnika, pri katerem je ''type'' opis tipa, je tipa ''pointer to type'' in ne ''integer''. 
-[integer] :: ^integer
-[^integer] :: ^^integer
-[array [0..3] of integer] :: ^(array [0..3] of integer)
-		 */
 		acceptor.type.accept(this);
 		SemType type = SemDesc.getActualType(acceptor.type);
 		if(type != null)
@@ -106,7 +100,7 @@ Izraz ''[ type ]'' za dodeljevanje pomnilnika, pri katerem je ''type'' opis tipa
 
 	@Override
 	public void visit(AbsAtomType acceptor) {
-		// atomarni tipi - int, bool, char
+		
 		SemAtomType type = new SemAtomType(acceptor.type);
 		SemDesc.setActualType(acceptor, type);
 	}
@@ -269,7 +263,6 @@ Izraz ''[ type ]'' za dodeljevanje pomnilnika, pri katerem je ''type'' opis tipa
 	public void visit(AbsExprStmt acceptor) {
 		// stavek ki je zgolj opis vrednosti, mora biti klic procedure
 		
-		// acceptor.expr je AbsValExpr (podrazred je AbsCallExpr)
 		if(acceptor.expr instanceof AbsCallExpr) {
 			// check if AbsCallExpr is a procedure and not a function call
 			AbsDecl decl = SemDesc.getNameDecl(((AbsCallExpr)acceptor.expr).name);
@@ -437,9 +430,9 @@ Izraz ''[ type ]'' za dodeljevanje pomnilnika, pri katerem je ''type'' opis tipa
 
 	@Override
 	public void visit(AbsTypeName acceptor) {
-		// dobimo povezavo na deklaracijo imena tega tipa
+		
 		AbsDecl decl = SemDesc.getNameDecl(acceptor);
-		// dobimo tip iz tabele tipov
+		
 		if(decl == null) return;
 		SemType type = SemDesc.getActualType(decl);
 		if(type == null) return;
@@ -488,7 +481,6 @@ Izraz ''[ type ]'' za dodeljevanje pomnilnika, pri katerem je ''type'' opis tipa
 	@Override
 	public void visit(AbsValExprs acceptor) {
 		for(AbsValExpr e: acceptor.exprs) {
-			// to so vsi izrazi za opis vrednosti
 			/* * @see AbsConstExpr (AbsAtomConst, AbsNilConst)
 			 * @see AbsUnExpr
 			 * @see AbsBinExpr
@@ -525,7 +517,7 @@ Izraz ''[ type ]'' za dodeljevanje pomnilnika, pri katerem je ''type'' opis tipa
 		 * @see AbsPointerType */
 		acceptor.type.accept(this);
 		acceptor.name.accept(this);
-		// nastavimo spremenljivkam tip!
+		
 		SemType type = SemDesc.getActualType(acceptor.type);
 		if(type == null) {
 			return;

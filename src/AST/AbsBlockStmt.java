@@ -1,12 +1,9 @@
 package AST;
 
 
-/**
- * Sestavljeni stavek.
- */
 public class AbsBlockStmt extends AbsStmt {
 
-	/** Stavki. */
+	
 	public AbsStmts stmts;
 	
 	public AbsBlockStmt(AbsStmts stmts) {

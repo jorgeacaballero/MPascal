@@ -1,11 +1,7 @@
 package AST;
 
-/**
- * Izrazi za opis tipov: kazalci.
- */
 public class AbsPointerType extends AbsTypeExpr {
 
-	/** Tip podatka. */
 	public AbsTypeExpr type;
 	
 	public AbsPointerType(AbsTypeExpr type) {

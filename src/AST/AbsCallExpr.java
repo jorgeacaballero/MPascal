@@ -1,14 +1,11 @@
 package AST;
 
-/**
- * Izrazi za opis vrednosti: klic podprograma.
- */
 public class AbsCallExpr extends AbsValExpr {
 	
-	/* Ime podprograma. */
+
 	public AbsValName name;
 	
-	/* Argumenti. */
+
 	public AbsValExprs args;
 	
 	public AbsCallExpr(AbsValName name, AbsValExprs args) {

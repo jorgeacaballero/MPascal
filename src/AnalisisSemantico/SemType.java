@@ -3,7 +3,6 @@ package AnalisisSemantico;
 import  Assets.*;
 
 /**
- * Opis podatkovnega tipa.
  * 
  * @see SemAtomType 
  * @see SemArrayType

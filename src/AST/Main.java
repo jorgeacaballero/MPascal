@@ -9,12 +9,10 @@ import mpascal.*;
 
 public class Main {
 
-	/** Abstraktno sintaksno drevo prevajanega programa. */
+
 	public static AbsTree absTree = null;
 
-	/**
-	 * Izvede prevajanje do faze gradnje abstraktnega sintaksnega drevesa.
-	 */
+
 	public static void exec() {
 		/* Open the input and output file. */
 		FileReader srcFile = null;
@@ -38,7 +36,7 @@ public class Main {
 		}
 		program.accept(new AbsPrintXML(xml));
 
-		/* Zapremo obe datoteki. */
+		
 		XML.close("abstree", xml);
 		try {
 			srcFile.close();

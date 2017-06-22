@@ -1,18 +1,15 @@
 package AST;
 
 
-/**
- * Deklaracija spremenljivke.
- */
 public class AbsVarDecl extends AbsDecl {
 
-	/** Ime spremenljivke. */
+	
 	public AbsDeclName name;
 	
-	/** Tip spremenljivke. */
+	
 	public AbsTypeExpr type;
 	
-	/** Tip vidnosti. */
+	
 	public VisibilityType visType;
 	
 	public AbsVarDecl(AbsDeclName name, AbsTypeExpr type, VisibilityType visType) {

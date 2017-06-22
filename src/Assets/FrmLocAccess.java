@@ -6,19 +6,19 @@ import java.io.*;
 import AST.*;
 import AnalisisSemantico.*;
 
-/** Dostop do lokalne spremenljivke.  */
+
 public class FrmLocAccess extends FrmAccess {
 
-	////// HAS IT BEEN ASSIGNED YET?
+
 	public int hasValue = 0;
 	
-	/** Opis spremenljivke.  */
+
 	public AbsVarDecl var;
 
-	/** Klicni zapis funkcije, v kateri je spremenljivka deklarirana.  */
+
 	public FrmFrame frame;
 
-	/** Odmik od FPja.  */
+
 	public int offset;
 
 	public FrmLocAccess(AbsVarDecl var, FrmFrame frame) {

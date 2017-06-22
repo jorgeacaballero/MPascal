@@ -1,11 +1,8 @@
 package AST;
 
-/**
- * Klic procedure.
- */
 public class AbsExprStmt extends AbsStmt {
 
-	/** Izraz. */
+
 	public AbsValExpr expr;
 	
 	public AbsExprStmt(AbsValExpr expr) {

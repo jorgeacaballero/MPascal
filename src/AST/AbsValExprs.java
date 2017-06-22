@@ -3,12 +3,10 @@ package AST;
 import java.util.*;
 
 
-/**
- * Izrazi za opis vrednosti: seznam izrazov.
- */
+
 public class AbsValExprs extends AbsTree {
 
-	/* Izrazi. */
+	
 	public LinkedList<AbsValExpr> exprs;
 	
 	public AbsValExprs() {
