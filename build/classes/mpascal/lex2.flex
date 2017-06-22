@@ -108,7 +108,7 @@ DotDot                      =   \.\.
     {WhiteSpace}                    {}
     {LCbracket}                    {yybegin(COMMENT);}
     {ComillaSimple}                 {yybegin(COMILLA_SIMPLE);}
-    {RCbracket}                   {throw new Error("Error Lexico: Se ha encontrado un token inválido: \'"+ yytext() + "\' en la Linea: " + (yyline +1) + ", Columna: " + (yycolumn+1) );}
+    {RCbracket}                   {throw new Error("Lexical error: Unvalid token found: \'"+ yytext() + "\' at line: " + (yyline +1) + ", column: " + (yycolumn+1) );}
     {Program}                       {return symbol(sym.Program);}
     {Procedure}                     {return symbol(sym.Procedure);}
     {Function}                      {return symbol(sym.Function);}

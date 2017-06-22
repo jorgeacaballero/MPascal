@@ -9,7 +9,7 @@ import java.io.File;
 
 /**
  *
- * @author jorgecaballero
+ * @author wmejia
  */
 public class LexerGenerator {
     public static void main(String[] args) {

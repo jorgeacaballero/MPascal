@@ -24,19 +24,19 @@ parser code {:
 	public void report_error(String message, Object info) {
             System.err.print("Syntax error: " ); 
             //expected();
-            System.err.println("pero se encontró el token \'" + ((Symbol)info).value + "\' en la Linea: " + ((Symbol)info).left + ", Columna: " + ((Symbol)info).right + ". " ); 
+            System.err.println("found token \'" + ((Symbol)info).value + "\' at line: " + ((Symbol)info).left + ", column: " + ((Symbol)info).right + ". " ); 
         }
 
         @Override
 	public void syntax_error(Symbol s){
-            System.err.print("Error Sintáctico: " ); 
+            System.err.print("Sinctacti errors: " ); 
             //expected();
-            //System.err.println("pero se encontró el token \'" + sym.terminalNames[s.sym] + "\' en la Linea: " + s.left + ", Columna: " + s.right + ". " ); 
+            //System.err.println("pero se encontró el token \'" + sym.terminalNames[s.sym] + "\' en la Linea: " + s.left + ", column: " + s.right + ". " ); 
 	}
 
 
         public void report_fatal_error(String message, Object info) {
-            throw new Error("Error Fatal Sintáctico, no se pudo recuperar del problema.");
+            throw new Error("Fatal error, couldn't recover.");
         }
 
         public void unrecovered_syntax_error(Symbol s) {
@@ -134,8 +134,6 @@ terminal String   Comma;
 terminal String   Colon;
 terminal String   Assign;
 terminal String   Id;
-terminal String   LCbracket;
-terminal String   RCbracket;
 terminal String   LPar;
 terminal String   RPar;
 terminal String   Program;
@@ -185,8 +183,6 @@ nonterminal Element              vars;
 nonterminal Element              var;
 
 nonterminal Element              exprlist;
-nonterminal Element              exprLogical;
-nonterminal Element              exprOpLog;
 nonterminal Element              opRelacion;
 nonterminal Element              opArit;
 nonterminal Element              opUnario;
@@ -962,6 +958,18 @@ AritExpr3       ::= literal:l
                     
                 :}
                 |  opUnario:op AritExpr3:e1
+                {:
+                    iniXML();
+                    op.appendChild(e1);
+                    RESULT = op;
+                :}
+                |  opLogico:op AritExpr3:e1
+                {:
+                    iniXML();
+                    op.appendChild(e1);
+                    RESULT = op;
+                :}
+                |  opArit:op AritExpr3:e1
                 {:
                     iniXML();
                     op.appendChild(e1);
