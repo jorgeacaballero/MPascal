@@ -6,6 +6,7 @@ import AnalisisLexico.*;
 import AnalisisSintactico.*;
 import AST.*;
 import AnalisisSemantico.*;
+import mpascal.*;
 
 public class Main {
 
@@ -18,7 +19,7 @@ public class Main {
 	public static void exec() {
 		/* Odpremo vhodno datoteko. */
 		FileReader srcFile = null;
-		String srcName = finalcompilator.Main.prgName + ".pascal";
+		String srcName = mpascal.Main.prgName + ".pascal";
 		try {
 			srcFile = new FileReader(srcName);
 		} catch (FileNotFoundException _) {
