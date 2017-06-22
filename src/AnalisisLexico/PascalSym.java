@@ -7,11 +7,6 @@ import java_cup.runtime.*;
 import Assets.*;
 import AnalisisSintactico.*;
 
- * 
- * @see <a
- *      href="https://www2.in.tum.de/repos/cup/develop/src/java_cup/runtime/Symbol.java"><code>java_cup.runtime.Symbol</code>
- *      source</a>
- */
 public class PascalSym extends Symbol implements XMLable {
 
 	public PascalSym(int sym) {

@@ -207,7 +207,7 @@ public class SemNameResolver implements AbsVisitor {
 		if(decl == null) {
 			error("For loop variable " + acceptor.name.name + " not declared!", acceptor);
 		}
-		/
+		
 		
 		acceptor.name.accept(this);
 		acceptor.hiBound.accept(this);
