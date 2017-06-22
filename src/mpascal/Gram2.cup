@@ -213,7 +213,7 @@ pprogram         ::= Program var:v Semicolon block:b Dot
                     if (v != null) { nodoPadre.appendChild(v); }
                     if(b != null) { nodoPadre.appendChild(b); }
                     writeToXML();
-                    SemAnal.llenarTablaSimbolos(nodoPadre);
+                    SemAnal.fillSymTable(nodoPadre);
                 :}
                 |   Program var:v1 LPar vars:vs RPar Semicolon block:b Dot
                 {:
@@ -238,7 +238,7 @@ pprogram         ::= Program var:v Semicolon block:b Dot
                     }
                     if(b != null) { nodoPadre.appendChild(b); }
                     writeToXML();
-                    SemAnal.llenarTablaSimbolos(nodoPadre);
+                    SemAnal.fillSymTable(nodoPadre);
                 :}
                 | error block Dot
                 | Program var:v Semicolon block:b error

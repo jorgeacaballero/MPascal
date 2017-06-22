@@ -11,77 +11,74 @@ import org.w3c.dom.NodeList;
  * @author jmlb
  */
 public class SemAnal {
-    static String ambitoActual;
-    static SymbolTable ts = new SymbolTable();
+    static String currentScope;
+    static SymbolTable symtable = new SymbolTable();
     static int offset;
     static String tempType = "";
-    static ArrayList<Element> nodosHoja = new ArrayList();
-    static String tipoActual = "";
-    static String tipoFuncion = "";
-    static int numErrores = 0;
+    static ArrayList<Element> leafNodes = new ArrayList();
+    static String currentType = "";
+    static String functionType = "";
+    static int errorNumber = 0;
     static boolean inAFunction = false;
     static boolean debug = false;
 
-    public static SymbolTable llenarTablaSimbolos(Element nodoPadre) throws Exception {
-        ambitoActual = "main";
-        numErrores = 0;
-        recorrerArbol(nodoPadre, "0", "0");
-        if (numErrores > 0) {
+    public static SymbolTable fillSymTable(Element fatherNode) throws Exception {
+        currentScope = "main";
+        errorNumber = 0;
+        readTree(fatherNode, "0", "0");
+        if (errorNumber > 0) {
             System.err.println("------------------------------------------------------------------------");
-            String message = "Se encontraron %d error(es), abortando compilación. \n";
-            message = String.format(message, numErrores);
+            String message = "Errors found, aborting. \n";
+            message = String.format(message, errorNumber);
             System.err.println(message);
         } else {
-            ts.toString();
+            symtable.toString();
             System.err.println("------------------------------------------------------------------------");
-            QuadGen G = new QuadGen(ts);
-            G.recorrer(nodoPadre);
+            QuadGen G = new QuadGen(symtable);
+            G.parseTree(fatherNode);
             G.print();
             System.err.println("------------------------------------------------------------------------");
-            //TargetGenerator TG = new TargetGenerator(ts, G.getTablaCuadruplos());
-            //TG.generateFinalCode();
-            //TG.printTargetCode();
         }
-        return ts;
+        return symtable;
     }
 
-    private static void recorrerArbol(Element nodoPadre, String Linea, String Columna) throws Exception {
-        NodeList hijos = nodoPadre.getChildNodes();
+    private static void readTree(Element fatherNode, String Linea, String Columna) throws Exception {
+        NodeList childNodes = fatherNode.getChildNodes();
 
-        for (int i = 0; i < hijos.getLength(); i++) {
-            Element nodo = (Element) hijos.item(i);
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Element nodo = (Element) childNodes.item(i);
             String nodeName = nodo.getNodeName();
             if (debug) {
                 System.out.println("RecorrerArbol - " + nodeName);
             }
             switch (nodeName) {
                 case "ReadStatement": {
-                    tipoActual = "";
-                    recorrerArbol(nodo, Linea, Columna);
-                    if (tipoActual.equals("boolean") || tipoActual.startsWith("Array")) {
-                        String tipo = tipoActual;
-                        tipoActual = "[string, integer, char]";
+                    currentType = "";
+                    readTree(nodo, Linea, Columna);
+                    if (currentType.equals("boolean") || currentType.startsWith("Array")) {
+                        String tipo = currentType;
+                        currentType = "[string, integer, char]";
                         Element arg = (Element) nodo.getFirstChild();
                         Linea = arg.getAttribute("Line");
                         Columna = arg.getAttribute("Column");
                         throwIncompatibleTypeError(Linea, Columna, tipo);
-                        tipoActual = tipo;
+                        currentType = tipo;
                     }
                     break;
                 }
                 case "WriteStatement": {
-                    tipoActual = "";
+                    currentType = "";
                     NodeList lista = nodo.getChildNodes();
                     if (lista.getLength() > 1) {
-                        recorrerArbol(nodo, Linea, Columna);
-                        if (tipoActual.equals("boolean") || tipoActual.startsWith("Array")) {
-                            String tipo = tipoActual;
-                            tipoActual = "[string, integer, char]";
+                        readTree(nodo, Linea, Columna);
+                        if (currentType.equals("boolean") || currentType.startsWith("Array")) {
+                            String tipo = currentType;
+                            currentType = "[string, integer, char]";
                             Element arg = (Element) nodo.getFirstChild();
                             Linea = arg.getAttribute("Line");
                             Columna = arg.getAttribute("Column");
                             throwIncompatibleTypeError(Linea, Columna, tipo);
-                            tipoActual = tipo;
+                            currentType = tipo;
                         }
                     }
 
@@ -95,8 +92,8 @@ public class SemAnal {
                     NodeList idList = nodo.getElementsByTagName("ID");
                     for (int j = 0; j < idList.getLength(); j++) {
                         String ID = ((Element) idList.item(j)).getAttribute("Value");
-                        Simbolo S = new Simbolo(ID, null, type, ambitoActual, true, false, false, offset);
-                        ts.Add(S);
+                        Simbolo S = new Simbolo(ID, null, type, currentScope, true, false, false, offset);
+                        symtable.Add(S);
                         offset += size;
                     }
                     break;
@@ -115,13 +112,13 @@ public class SemAnal {
                             tempType += "X" + type;
                         }
                         String ID = ((Element) idList.item(j)).getAttribute("Value");
-                        Simbolo S = new Simbolo(ID, null, type, ambitoActual, false, false, true, offset);
+                        Simbolo S = new Simbolo(ID, null, type, currentScope, false, false, true, offset);
                         if (isPointer.equals("true")) {
                             S.setByRef(true);
                         } else {
                             S.setByRef(false);
                         }
-                        ts.Add(S);
+                        symtable.Add(S);
                         offset += size;
                     }
                     break;
@@ -129,20 +126,20 @@ public class SemAnal {
                 case "ProcedureDeclaration": {
                     String ID = nodo.getAttribute("ID");
                     Simbolo S = new Simbolo(ID, null, "void -> void", "main", false, true, false, offset);
-                    int indice = ts.Add(S);
-                    ambitoActual = nodo.getAttribute("ID");
+                    int indice = symtable.Add(S);
+                    currentScope = nodo.getAttribute("ID");
                     int backupOffset = offset;
                     offset = 0;
                     inAFunction = true;
-                    recorrerArbol(nodo, Linea, Columna);
+                    readTree(nodo, Linea, Columna);
                     inAFunction = false;
                     if (!tempType.isEmpty()) {
                         tempType += " -> void";
                         S.setType(tempType);
-                        ts.replaceNode(S, indice);
+                        symtable.replaceNode(S, indice);
                     }
                     tempType = "";
-                    ambitoActual = "main";
+                    currentScope = "main";
                     offset = backupOffset;
                     break;
                 }
@@ -150,12 +147,12 @@ public class SemAnal {
                     String ID = nodo.getAttribute("ID");
                     String type = nodo.getAttribute("Type");
                     Simbolo S = new Simbolo(ID, null, type, "main", false, true, false, offset);
-                    int indice = ts.Add(S);
+                    int indice = symtable.Add(S);
                     int backupOffset = offset;
                     offset = 0;
-                    ambitoActual = nodo.getAttribute("ID");
+                    currentScope = nodo.getAttribute("ID");
                     inAFunction = true;
-                    recorrerArbol(nodo, Linea, Columna);
+                    readTree(nodo, Linea, Columna);
                     inAFunction = false;
                     if (!tempType.isEmpty()) {
                         tempType += " -> " + type;
@@ -163,9 +160,9 @@ public class SemAnal {
                     } else {
                         S.setType("void -> " + type);
                     }
-                    ts.replaceNode(S, indice);
+                    symtable.replaceNode(S, indice);
                     tempType = "";
-                    ambitoActual = "main";
+                    currentScope = "main";
                     offset = backupOffset;
                     break;
                 }
@@ -173,7 +170,7 @@ public class SemAnal {
                     String type = nodo.getAttribute("Type");
                     Linea = nodo.getAttribute("Line");
                     Columna = nodo.getAttribute("Column");
-                    if (!tipoActual.isEmpty() && !tipoActual.equals(type)) {
+                    if (!currentType.isEmpty() && !currentType.equals(type)) {
                         throwIncompatibleTypeError(Linea, Columna, type);
                     }
                     break;
@@ -181,21 +178,21 @@ public class SemAnal {
                 case "Assignment": {
                     Element IdNode = (Element) nodo.getFirstChild();
                     String IdValex = IdNode.getAttribute("Value");
-                    Simbolo S = ts.getVariable(IdValex, ambitoActual);
-                    if(!ambitoActual.equals("main") && S == null){
-                        S = ts.getFunction(IdValex);
+                    Simbolo S = symtable.getVariable(IdValex, currentScope);
+                    if(!currentScope.equals("main") && S == null){
+                        S = symtable.getFunction(IdValex);
                     }
                     if(S == null){
-                        S = ts.getVariable(IdValex, "main");
+                        S = symtable.getVariable(IdValex, "main");
                     }
                     Linea = IdNode.getAttribute("Line");
                     Columna = IdNode.getAttribute("Column");
                     if (S == null) {
                         throwNotFoundError(Linea, Columna, IdValex);
                     }
-                    tipoActual = "";
-                    recorrerArbol(nodo, Linea, Columna);
-                    tipoActual = "";
+                    currentType = "";
+                    readTree(nodo, Linea, Columna);
+                    currentType = "";
                     
                     break;
                 }
@@ -206,19 +203,19 @@ public class SemAnal {
                     Linea = nodo.getAttribute("Line");
                     Columna = nodo.getAttribute("Column");
                     if (programIsParent) {
-                        recorrerArbol(nodo, nodo.getAttribute("Line"), nodo.getAttribute("Column"));
+                        readTree(nodo, nodo.getAttribute("Line"), nodo.getAttribute("Column"));
                         break;
                     }
 
-                    Simbolo S = ts.getVariable(idValex, ambitoActual);
+                    Simbolo S = symtable.getVariable(idValex, currentScope);
                     
                     if(S == null){
-                        S = ts.getVariable(idValex, "main");
+                        S = symtable.getVariable(idValex, "main");
                     }
                     
-                    if(inAFunction && tipoActual.isEmpty() && S == null){
-                        S = ts.getFunction(idValex);
-                        tipoActual = S.getType();
+                    if(inAFunction && currentType.isEmpty() && S == null){
+                        S = symtable.getFunction(idValex);
+                        currentType = S.getType();
                         Element parent = (Element)nodo.getParentNode();
                         parent.setAttribute("Return", "true");
                     }
@@ -227,25 +224,25 @@ public class SemAnal {
                         throwNotFoundError(Linea, Columna, idValex);
                     }
                     
-                    boolean isSameType = S.getType().equals(tipoActual);
-                    if (!tipoActual.isEmpty() && !isSameType) {
+                    boolean isSameType = S.getType().equals(currentType);
+                    if (!currentType.isEmpty() && !isSameType) {
                         String currentType = S.getType().split("\\.")[0];
                         throwIncompatibleTypeError(Linea, Columna, currentType);
                     } else {
-                        if(tipoActual.isEmpty())
-                            tipoActual = S.getType();
+                        if(currentType.isEmpty())
+                            currentType = S.getType();
                     }
-                    recorrerArbol(nodo, nodo.getAttribute("Line"), nodo.getAttribute("Column"));
+                    readTree(nodo, nodo.getAttribute("Line"), nodo.getAttribute("Column"));
                     break;
                 }
                 case "FunctionCall": {
-                    String tipoBKP = tipoFuncion;
-                    tipoFuncion = "";
+                    String tipoBKP = functionType;
+                    functionType = "";
                     Element functionId = (Element) nodo.getFirstChild();
                     String id = functionId.getAttribute("Value");
                     Linea = functionId.getAttribute("Line");
                     Columna = functionId.getAttribute("Column");
-                    Simbolo S = ts.getFunction(id);
+                    Simbolo S = symtable.getFunction(id);
                     String tipoRetorno = "";
                     if (S == null) {
                         throwNotFoundError(Linea, Columna, id);
@@ -254,18 +251,18 @@ public class SemAnal {
                     tipoRetorno = S.getType().split(" -> ")[1];
 
                     if (nodo.getChildNodes().getLength() > 1) {
-                        comprobarFuncion((Element) nodo.getLastChild());
-                        tipoFuncion = tipoFuncion + " -> " + tipoRetorno;
+                        verifyFunction((Element) nodo.getLastChild());
+                        functionType = functionType + " -> " + tipoRetorno;
                     } else {
-                        tipoFuncion = "void -> " + tipoRetorno;
+                        functionType = "void -> " + tipoRetorno;
                     }
-                    if (!tipoActual.isEmpty() && !tipoActual.equals(tipoRetorno)) {
+                    if (!currentType.isEmpty() && !currentType.equals(tipoRetorno)) {
                         throwIncompatibleTypeError(Linea, Columna, tipoRetorno);
                     }
-                    if (!tipoFuncion.equals(S.getType())) {
+                    if (!functionType.equals(S.getType())) {
                         throwFunctionArgsError(Linea, Columna, id);
                     }
-                    tipoFuncion = tipoBKP;
+                    functionType = tipoBKP;
 
                     break;
                 }
@@ -275,14 +272,14 @@ public class SemAnal {
                 case "LessOrEqual":
                 case "GreaterOrEqual":
                 case "Different": {
-                    if (!tipoActual.isEmpty() && tipoActual.equals("boolean")) {
-                        String tipoActualBKP = tipoActual;
-                        tipoActual = "";
-                        comprobarTipos(nodo);
-                        tipoActual = tipoActualBKP;
-                    } else if (tipoActual.isEmpty()) {
-                        comprobarTipos(nodo);
-                        tipoActual = "";
+                    if (!currentType.isEmpty() && currentType.equals("boolean")) {
+                        String tipoActualBKP = currentType;
+                        currentType = "";
+                        typeChecking(nodo);
+                        currentType = tipoActualBKP;
+                    } else if (currentType.isEmpty()) {
+                        typeChecking(nodo);
+                        currentType = "";
                     } else {
                         throwIncompatibleTypeError(Linea, Columna, "boolean");
                     }
@@ -292,11 +289,11 @@ public class SemAnal {
                 case "AND":
                 case "OR":
                 case "NOT": {
-                    if (!tipoActual.isEmpty() && tipoActual.equals("boolean")) {
-                        recorrerArbol(nodo, Linea, Columna);
-                        tipoActual = "";
-                    } else if (tipoActual.isEmpty()) {
-                        recorrerArbol(nodo, Linea, Columna);
+                    if (!currentType.isEmpty() && currentType.equals("boolean")) {
+                        readTree(nodo, Linea, Columna);
+                        currentType = "";
+                    } else if (currentType.isEmpty()) {
+                        readTree(nodo, Linea, Columna);
                     } else {
                         throwIncompatibleTypeError(Linea, Columna, "boolean");
                     }
@@ -305,15 +302,15 @@ public class SemAnal {
                 case "IfStatement": {
                     Linea = nodo.getAttribute("Line");
                     Columna = nodo.getAttribute("Column");
-                    String tipoBKP = tipoActual;
-                    tipoActual = "boolean";
-                    recorrerArbol(nodo, Linea, Columna);
-                    tipoActual = tipoBKP;
+                    String tipoBKP = currentType;
+                    currentType = "boolean";
+                    readTree(nodo, Linea, Columna);
+                    currentType = tipoBKP;
                     break;
                 }
                 case "ARRAY": {
                     String id = nodo.getAttribute("Value");
-                    Simbolo S = ts.getVariable(id, ambitoActual);
+                    Simbolo S = symtable.getVariable(id, currentScope);
                     Linea = nodo.getAttribute("Line");
                     Columna = nodo.getAttribute("Column");
 
@@ -323,17 +320,17 @@ public class SemAnal {
                         throwIlegalExpresionError(Linea, Columna);
                     } else {
                         String tipo = S.getType().split("\\.")[1];
-                        String tipoBKP = tipoActual;
-                        if (tipoActual.isEmpty()) {
+                        String tipoBKP = currentType;
+                        if (currentType.isEmpty()) {
                             System.out.println("1");
-                            tipoActual = "integer";
-                            comprobarTipos(nodo);
-                            tipoActual = tipo;
-                        } else if (tipoActual.equals(tipo)) {
+                            currentType = "integer";
+                            typeChecking(nodo);
+                            currentType = tipo;
+                        } else if (currentType.equals(tipo)) {
                             System.out.println("2");
-                            tipoActual = "integer";
-                            comprobarTipos(nodo);
-                            tipoActual = tipoBKP;
+                            currentType = "integer";
+                            typeChecking(nodo);
+                            currentType = tipoBKP;
                         } else {
                             throwIncompatibleTypeError(Linea, Columna, tipo);
                         }
@@ -342,7 +339,7 @@ public class SemAnal {
                     break;
                 }
                 default: {
-                    recorrerArbol(nodo, Linea, Columna);
+                    readTree(nodo, Linea, Columna);
                     break;
                 }
             }
@@ -350,9 +347,9 @@ public class SemAnal {
 
     }
 
-    private static void comprobarTipos(Element nodoPadre) throws Exception {
+    private static void typeChecking(Element fatherNode) throws Exception {
 
-        NodeList hijos = nodoPadre.getChildNodes();
+        NodeList hijos = fatherNode.getChildNodes();
         for (int i = 0; i < hijos.getLength(); i++) {
             Element nodo = (Element) hijos.item(i);
             String nodeName = nodo.getNodeName();
@@ -362,10 +359,10 @@ public class SemAnal {
             switch (nodeName) {
                 case "Literal": {
                     String type = nodo.getAttribute("Type");
-                    if (tipoActual.isEmpty()) {
-                        tipoActual = type;
+                    if (currentType.isEmpty()) {
+                        currentType = type;
                     }
-                    if (!tipoActual.equals(type)) {
+                    if (!currentType.equals(type)) {
                         String Line = nodo.getAttribute("Line");
                         String Column = nodo.getAttribute("Column");
                         throwIncompatibleTypeError(Line, Column, type);
@@ -374,15 +371,15 @@ public class SemAnal {
                 }
                 case "ID": {
                     String id = nodo.getAttribute("Value");
-                    Simbolo S = ts.getVariable(id, ambitoActual);
+                    Simbolo S = symtable.getVariable(id, currentScope);
                     if (S == null) {
                         String Line = nodo.getAttribute("Line");
                         String Column = nodo.getAttribute("Column");
                         throwNotFoundError(Line, Column, id);
 
                     } else {
-                        boolean isSameType = S.getType().equals(tipoActual);
-                        if (!tipoActual.isEmpty() && !isSameType) {
+                        boolean isSameType = S.getType().equals(currentType);
+                        if (!currentType.isEmpty() && !isSameType) {
 
                             String Line = nodo.getAttribute("Line");
                             String Column = nodo.getAttribute("Column");
@@ -390,7 +387,7 @@ public class SemAnal {
                             throwIncompatibleTypeError(Line, Column, currentType);
 
                         } else {
-                            tipoActual = S.getType();
+                            currentType = S.getType();
                         }
                     }
                     break;
@@ -398,16 +395,16 @@ public class SemAnal {
                 case "Minus":
                 case "Times":
                 case "Div": {
-                    comprobarArit(nodo);
+                    verifyArithmetic(nodo);
                     break;
                 }
                 case "Plus": {
-                    comprobarTipos(nodo);
+                    typeChecking(nodo);
                     break;
                 }
                 case "ARRAY": {
                     String id = nodo.getAttribute("Value");
-                    Simbolo S = ts.getVariable(id, ambitoActual);
+                    Simbolo S = symtable.getVariable(id, currentScope);
                     String Linea = nodo.getAttribute("Line");
                     String Columna = nodo.getAttribute("Column");
                     if (S == null) {
@@ -416,31 +413,32 @@ public class SemAnal {
                         throwIlegalExpresionError(Linea, Columna);
                     } else {
                         String tipo = S.getType().split("\\.")[1];
-                        String tipoBKP = tipoActual;
-                        if (tipoActual.isEmpty()) {
-                            tipoActual = "integer";
-                            comprobarTipos(nodo);
-                        } else if (tipoActual.equals(tipo)) {
-                            tipoActual = "integer";
-                            comprobarTipos(nodo);
+                        String tipoBKP = currentType;
+                        if (currentType.isEmpty()) {
+                            currentType = "integer";
+                            typeChecking(nodo);
+                        } else if (currentType.equals(tipo)) {
+                            currentType = "integer";
+                            typeChecking(nodo);
 
                         } else {
                             throwIncompatibleTypeError(Linea, Columna, tipo);
                         }
-                        tipoActual = tipoBKP;
+                        currentType = tipoBKP;
                     }
                     break;
                 }
                 default: {
-                    comprobarTipos(nodo);
+                    typeChecking(nodo);
                 }
             }
 
         }
     }
 
-    private static void comprobarArit(Element nodoPadre) throws Exception {
-        NodeList hijos = nodoPadre.getChildNodes();
+    //Verifies arithmetic expressions
+    private static void verifyArithmetic(Element fatherNode) throws Exception {
+        NodeList hijos = fatherNode.getChildNodes();
         for (int i = 0; i < hijos.getLength(); i++) {
             Element nodo = (Element) hijos.item(i);
             String nodeName = nodo.getNodeName();
@@ -450,8 +448,8 @@ public class SemAnal {
             switch (nodeName) {
                 case "Literal": {
                     String type = nodo.getAttribute("Type");
-                    if (tipoActual.isEmpty()) {
-                        tipoActual = type;
+                    if (currentType.isEmpty()) {
+                        currentType = type;
                     }
                     boolean isInteger = type.equals("integer");
                     if (!isInteger) {
@@ -463,7 +461,7 @@ public class SemAnal {
                 }
                 case "ID": {
                     String id = nodo.getAttribute("Value");
-                    Simbolo S = ts.getVariable(id, ambitoActual);
+                    Simbolo S = symtable.getVariable(id, currentScope);
                     if (S == null) {
                         String Line = nodo.getAttribute("Line");
                         String Column = nodo.getAttribute("Column");
@@ -471,7 +469,7 @@ public class SemAnal {
 
                     } else {
                         boolean isInteger = S.getType().equals("integer");
-                        if (!tipoActual.isEmpty() && !isInteger) {
+                        if (!currentType.isEmpty() && !isInteger) {
 
                             String Line = nodo.getAttribute("Line");
                             String Column = nodo.getAttribute("Column");
@@ -479,14 +477,14 @@ public class SemAnal {
                             throwIncompatibleTypeError(Line, Column, currentType);
 
                         } else {
-                            tipoActual = "integer";
+                            currentType = "integer";
                         }
                     }
                     break;
                 }
                 case "ARRAY": {
                     String id = nodo.getAttribute("Value");
-                    Simbolo S = ts.getVariable(id, ambitoActual);
+                    Simbolo S = symtable.getVariable(id, currentScope);
                     String Linea = nodo.getAttribute("Line");
                     String Columna = nodo.getAttribute("Column");
                     if (S == null) {
@@ -495,24 +493,24 @@ public class SemAnal {
                         throwIlegalExpresionError(Linea, Columna);
                     } else {
                         String tipo = S.getType().split("\\.")[1];
-                        String tipoBKP = tipoActual;
+                        String tipoBKP = currentType;
                         boolean isInteger = tipo.equals("integer");
-                        if (tipoActual.isEmpty()) {
-                            tipoActual = "integer";
-                            comprobarTipos(nodo);
+                        if (currentType.isEmpty()) {
+                            currentType = "integer";
+                            typeChecking(nodo);
                         } else if (isInteger) {
-                            tipoActual = "integer";
-                            comprobarTipos(nodo);
+                            currentType = "integer";
+                            typeChecking(nodo);
 
                         } else {
                             throwIncompatibleTypeError(Linea, Columna, tipo);
                         }
-                        tipoActual = tipoBKP;
+                        currentType = tipoBKP;
                     }
                     break;
                 }
                 default: {
-                    comprobarArit(nodo);
+                    verifyArithmetic(nodo);
                     break;
                 }
             }
@@ -520,62 +518,62 @@ public class SemAnal {
         }
     }
 
-    private static void comprobarFuncion(Element nodoPadre) throws Exception {
-        NodeList hijos = nodoPadre.getChildNodes();
+    private static void verifyFunction(Element fatherNode) throws Exception {
+        NodeList hijos = fatherNode.getChildNodes();
         for (int i = 0; i < hijos.getLength(); i++) {
             Element nodo = (Element) hijos.item(i);
             String nodeName = nodo.getNodeName();
             switch (nodeName) {
                 case "ID": {
                     String id = nodo.getAttribute("Value");
-                    Simbolo S = ts.getVariable(id, ambitoActual);
+                    Simbolo S = symtable.getVariable(id, currentScope);
                     if (S == null) {
                         String Line = nodo.getAttribute("Line");
                         String Column = nodo.getAttribute("Column");
                         throwNotFoundError(Line, Column, id);
 
                     }
-                    if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += S.getType();
+                    if (functionType.isEmpty()) {
+                        functionType += S.getType();
                     } else {
-                        tipoFuncion += "X" + S.getType();
+                        functionType += "X" + S.getType();
                     }
                     break;
                 }
                 case "Literal": {
                     String tipo = nodo.getAttribute("Type");
-                    if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += tipo;
+                    if (functionType.isEmpty()) {
+                        functionType += tipo;
                     } else {
-                        tipoFuncion += "X" + tipo;
+                        functionType += "X" + tipo;
                     }
                     break;
                 }
                 case "Minus":
                 case "Times":
                 case "Div": {
-                    String tipoBKP = tipoActual;
-                    tipoActual = "integer";
-                    comprobarTipos(nodo);
-                    tipoActual = tipoBKP;
-                    if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += "integer";
+                    String tipoBKP = currentType;
+                    currentType = "integer";
+                    typeChecking(nodo);
+                    currentType = tipoBKP;
+                    if (functionType.isEmpty()) {
+                        functionType += "integer";
                     } else {
-                        tipoFuncion += "Xinteger";
+                        functionType += "Xinteger";
                     }
                     break;
                 }
                 case "Plus": {
-                    String tipoBKP = tipoActual;
-                    tipoActual = "";
-                    comprobarTipos(nodo);
+                    String tipoBKP = currentType;
+                    currentType = "";
+                    typeChecking(nodo);
 
-                    if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += tipoActual;
+                    if (functionType.isEmpty()) {
+                        functionType += currentType;
                     } else {
-                        tipoFuncion += "X" + tipoActual;
+                        functionType += "X" + currentType;
                     }
-                    tipoActual = tipoBKP;
+                    currentType = tipoBKP;
                     break;
                 }
                 case "GreaterThan":
@@ -584,37 +582,37 @@ public class SemAnal {
                 case "LessOrEqual":
                 case "GreaterOrEqual":
                 case "Different": {
-                    String tipoActualBKP = tipoActual;
-                    tipoActual = "";
-                    comprobarTipos(nodo);
-                    tipoActual = tipoActualBKP;
-                    if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += "boolean";
+                    String tipoActualBKP = currentType;
+                    currentType = "";
+                    typeChecking(nodo);
+                    currentType = tipoActualBKP;
+                    if (functionType.isEmpty()) {
+                        functionType += "boolean";
                     } else {
-                        tipoFuncion += "Xboolean";
+                        functionType += "Xboolean";
                     }
                     break;
                 }
                 case "AND":
                 case "OR":
                 case "NOT": {
-                    String tipoActualBKP = tipoActual;
-                    tipoActual = "boolean";
-                    recorrerArbol(nodo, "0", "0");
-                    tipoActual = tipoActualBKP;
-                    if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += "boolean";
+                    String tipoActualBKP = currentType;
+                    currentType = "boolean";
+                    readTree(nodo, "0", "0");
+                    currentType = tipoActualBKP;
+                    if (functionType.isEmpty()) {
+                        functionType += "boolean";
                     } else {
-                        tipoFuncion += "Xboolean";
+                        functionType += "Xboolean";
                     }
                     break;
                 }
                 case "FunctionCall": {
-                    String tipoBKP = tipoFuncion;
-                    tipoFuncion = "";
+                    String tipoBKP = functionType;
+                    functionType = "";
                     Element functionId = (Element) nodo.getFirstChild();
                     String id = functionId.getAttribute("Value");
-                    Simbolo S = ts.getFunction(id);
+                    Simbolo S = symtable.getFunction(id);
                     String tipoRetorno = "";
                     String Linea = functionId.getAttribute("Line");
                     String Columna = functionId.getAttribute("Column");
@@ -624,26 +622,26 @@ public class SemAnal {
                     tipoRetorno = S.getType().split(" -> ")[1];
 
                     if (nodo.getChildNodes().getLength() > 1) {
-                        comprobarFuncion((Element) nodo.getLastChild());
-                        tipoFuncion = tipoFuncion + " -> " + tipoRetorno;
+                        verifyFunction((Element) nodo.getLastChild());
+                        functionType = functionType + " -> " + tipoRetorno;
                     } else {
-                        tipoFuncion = "void -> " + tipoRetorno;
+                        functionType = "void -> " + tipoRetorno;
                     }
-                    if (!tipoActual.equals(tipoRetorno)) {
+                    if (!currentType.equals(tipoRetorno)) {
                         throwIncompatibleTypeError(Linea, Columna, tipoRetorno);
                     }
-                    if (!tipoFuncion.equals(S.getType())) {
+                    if (!functionType.equals(S.getType())) {
                         throwFunctionArgsError(Linea, Columna, id);
                     }
-                    tipoFuncion = tipoBKP;
-                    if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += tipoRetorno;
+                    functionType = tipoBKP;
+                    if (functionType.isEmpty()) {
+                        functionType += tipoRetorno;
                     } else {
-                        tipoFuncion += "X" + tipoRetorno;
+                        functionType += "X" + tipoRetorno;
                     }
                 }
                 default: {
-                    comprobarFuncion(nodo);
+                    verifyFunction(nodo);
                 }
             }
         }
@@ -651,54 +649,54 @@ public class SemAnal {
     }
 
     private static void throwNotFoundError(String Linea, String Columna, String ID) throws Exception {
-        String errorMessage = "(%s,%s) Error: Identificador no encontrado '%s'";
+        String errorMessage = "(%s,%s) Error: ID not found '%s'";
         errorMessage = String.format(errorMessage, Linea, Columna, ID);
         if (debug) {
             throw new Exception(errorMessage);
         } else {
             System.err.println(errorMessage);
         }
-        numErrores++;
+        errorNumber++;
     }
 
     private static void throwIncompatibleTypeError(String Linea, String Columna, String tipo) throws Exception {
         String errorMessage = "";
         if(tipo.equals("void")){
-            errorMessage = "(%s,%s) Error: Asignacion invalida, los procedimientos no retornan valor";
+            errorMessage = "(%s,%s) Error: Invalid Assignment, procedures don't have a return value";
         } else {
-            errorMessage = "(%s,%s) Error: Tipos incompatibles, se esperaba '%s' pero se encontro '%s'";
+            errorMessage = "(%s,%s) Error: Incompatible types, expecting '%s', found '%s'";
         }
         
-        errorMessage = String.format(errorMessage, Linea, Columna, tipoActual, tipo);
+        errorMessage = String.format(errorMessage, Linea, Columna, currentType, tipo);
         
         if (debug) {
             throw new Exception(errorMessage);
         } else {
             System.err.println(errorMessage);
         }
-        numErrores++;
+        errorNumber++;
     }
 
     private static void throwFunctionArgsError(String Linea, String Columna, String id) throws Exception {
-        String errorMessage = "(%s,%s) Error: Función no encontrado '%s' con los parámetros proporcionado";
+        String errorMessage = "(%s,%s) Error: Function not found '%s' with specified parameters";
         errorMessage = String.format(errorMessage, Linea, Columna, id);
         if (debug) {
             throw new Exception(errorMessage);
         } else {
             System.err.println(errorMessage);
         }
-        numErrores++;
+        errorNumber++;
     }
 
     private static void throwIlegalExpresionError(String Linea, String Columna) throws Exception {
-        String errorMessage = "(%s,%s) Error: Expresión Ilegal";
+        String errorMessage = "(%s,%s) Error: Illegal Expression";
         errorMessage = String.format(errorMessage, Linea, Columna);
         if (debug) {
             throw new Exception(errorMessage);
         } else {
             System.err.println(errorMessage);
         }
-        numErrores++;
+        errorNumber++;
     }
 
 }

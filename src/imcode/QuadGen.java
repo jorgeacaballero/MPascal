@@ -17,9 +17,9 @@ import org.w3c.dom.NodeList;
  * @author jmlb
  */
 public class QuadGen {
-    QuadTable Cuadruplos = new QuadTable();
+    QuadTable Quads = new QuadTable();
     SymbolTable TS = new SymbolTable();
-    String opracionActual = "";
+    String currOp = "";
     String ambitoActual = "main";
     int tempCounter = 0;
     boolean debug = false;
@@ -28,11 +28,11 @@ public class QuadGen {
         this.TS = TS;
     }
     
-    public QuadTable getTablaCuadruplos(){
-        return this.Cuadruplos;
+    public QuadTable getQuadTable(){
+        return this.Quads;
     }
 
-    public void recorrer(Element rootNode) throws Exception {
+    public void parseTree(Element rootNode) throws Exception {
         NodeList hijos = rootNode.getChildNodes();
         for (int i = 0; i < hijos.getLength(); i++) {
             Element nodo = (Element) hijos.item(i);
@@ -44,42 +44,42 @@ public class QuadGen {
 
                 case "ProcedureDeclaration": {
                     String functionName = nodo.getAttribute("ID");
-                    Cuadruplos.GEN_LABEL(functionName);
-                    this.recorrer(nodo);
-                    Cuadruplos.GEN("RET", "", "", "");
+                    Quads.GEN_LABEL(functionName);
+                    this.parseTree(nodo);
+                    Quads.GEN("RET", "", "", "");
                     break;
                 }
                 case "FunctionDeclaration": {
                     String functionName = nodo.getAttribute("ID");
-                    Cuadruplos.GEN_LABEL(functionName);
-                    this.recorrer(nodo);
+                    Quads.GEN_LABEL(functionName);
+                    this.parseTree(nodo);
                     break;
                 }
                 case "Body": {
                     if (nodo.getParentNode().getNodeName().equals("Block")) {
-                        Cuadruplos.GEN_LABEL("main");
+                        Quads.GEN_LABEL("main");
                     }
-                    recorrer(nodo);
+                    parseTree(nodo);
                     break;
                 }
                 case "FunctionCall": {
-                    cuadruploFuncCall(nodo);
+                    functionCallQuad(nodo);
                     break;
                 }
                 case "IfStatement": {
-                    cuadruploIf(nodo);
+                    ifQuad(nodo);
                     break;
                 }
                 case "WhileStatement": {
-                    cuadruploWhile(nodo);
+                    whileQuad(nodo);
                     break;
                 }
                 case "RepeatStatement": {
-                    cuadruploRepeat(nodo);
+                    repeatQuad(nodo);
                     break;
                 }
                 case "ForStatement": {
-                    cuadruploFor(nodo);
+                    forQuad(nodo);
                     break;
                 }
                 case "ReadStatement": {
@@ -88,14 +88,14 @@ public class QuadGen {
                     switch (argName) {
                         case "ID": {
                             String argValue = arg.getAttribute("Value");
-                            Cuadruplos.GEN("READ", "", "", argValue);
+                            Quads.GEN("READ", "", "", argValue);
                             break;
                         }
                         case "ARRAY": {
-                            cuadruploArray(arg);
+                            arrQuad(arg);
                             String temp = this.getTemp();
                             String argValue = arg.getAttribute("Value");
-                            Cuadruplos.GEN("READ[]", temp, "", argValue);
+                            Quads.GEN("READ[]", temp, "", argValue);
                             break;
                         }
                     }
@@ -118,28 +118,28 @@ public class QuadGen {
                                 break;
                             }
                             case "ARRAY": {
-                                cuadruploArray(arg2);
+                                arrQuad(arg2);
                                 String temp = this.getTemp();
                                 argValue = temp;
                                 break;
                             }
                         }
-                        Cuadruplos.GEN("WRITE", arg1Value, "", "");
-                        Cuadruplos.GEN("WRITE", argValue, "", "");
+                        Quads.GEN("WRITE", arg1Value, "", "");
+                        Quads.GEN("WRITE", argValue, "", "");
                     } else {
-                        Cuadruplos.GEN("WRITE", arg1Value, "", "");
+                        Quads.GEN("WRITE", arg1Value, "", "");
                     }
 
                     break;
                 }
                 case "Assignment": {
-                    cuadruploAssignment(nodo);
+                    assignQuad(nodo);
                     break;
                 }
                 case "AND":
                 case "OR":
                 case "NOT": {
-                    cuadruploRelacional(nodo);
+                    relQuad(nodo);
                     break;
                 }
                 case "GreaterThan":
@@ -148,7 +148,7 @@ public class QuadGen {
                 case "LessOrEqual":
                 case "GreaterOrEqual":
                 case "Different": {
-                    this.cuadruplosExpresion(nodo);
+                    this.exprQuad(nodo);
                     Element parent = (Element) nodo.getParentNode();
                     String listaV = nodo.getAttribute("listaV");
                     String listaF = nodo.getAttribute("listaF");
@@ -160,11 +160,11 @@ public class QuadGen {
                 case "Minus":
                 case "Times":
                 case "Plus": {
-                    cuadruploAritmetico(nodo);
+                    arithQuad(nodo);
                     break;
                 }
                 default: {
-                    recorrer(nodo);
+                    parseTree(nodo);
                     break;
                 }
             }
@@ -172,7 +172,7 @@ public class QuadGen {
 
     }
 
-    public void cuadruploAritmetico(Element nodo) throws Exception {
+    public void arithQuad(Element nodo) throws Exception {
         String nodeName = nodo.getNodeName();
         if (debug) {
             System.out.println("cuadruploArit: " + nodeName);
@@ -193,9 +193,9 @@ public class QuadGen {
 
                 if (arg1IsFinal && arg2IsFinal) {
                     if (arg1IsArray && arg2IsArray) {
-                        cuadruploAritmetico(arg1);
+                        arithQuad(arg1);
                         String tempArg1 = this.getTemp();
-                        cuadruploAritmetico(arg2);
+                        arithQuad(arg2);
                         String tempArg2 = this.getTemp();
 
                         String temp = this.newTemp();
@@ -203,44 +203,44 @@ public class QuadGen {
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(operacion, tempArg1, tempArg2, temp);
+                        Quads.GEN(operacion, tempArg1, tempArg2, temp);
                     } else if (arg1IsArray) {
-                        cuadruploAritmetico(arg1);
+                        arithQuad(arg1);
                         String tempArg = this.getTemp();
                         String temp = this.newTemp();
                         String operacion = nodo.getAttribute("Value");
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(operacion, tempArg, arg2.getAttribute("Value"), temp);
+                        Quads.GEN(operacion, tempArg, arg2.getAttribute("Value"), temp);
                     } else if (arg2IsArray) {
-                        cuadruploAritmetico(arg2);
+                        arithQuad(arg2);
                         String tempArg = this.getTemp();
                         String temp = this.newTemp();
                         String operacion = nodo.getAttribute("Value");
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(operacion, arg1.getAttribute("Value"), tempArg, temp);
+                        Quads.GEN(operacion, arg1.getAttribute("Value"), tempArg, temp);
                     } else {
                         String temp = this.newTemp();
                         String operacion = nodo.getAttribute("Value");
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(":=", arg1.getAttribute("Value"), temp);
+                        Quads.GEN(":=", arg1.getAttribute("Value"), temp);
                         String firstTemp = this.getTemp();
                         temp = newTemp();
-                        Cuadruplos.GEN(":=", arg2.getAttribute("Value"), temp);
+                        Quads.GEN(":=", arg2.getAttribute("Value"), temp);
                         String secondTemp = this.getTemp();
                         temp = newTemp();
-                        Cuadruplos.GEN(operacion, firstTemp, secondTemp, temp);
+                        Quads.GEN(operacion, firstTemp, secondTemp, temp);
                     }
                 } else if (arg1IsFinal) {
                     if (arg1IsArray) {
-                        cuadruploAritmetico(arg1);
+                        arithQuad(arg1);
                         String tempArg1 = this.getTemp();
-                        cuadruploAritmetico(arg2);
+                        arithQuad(arg2);
                         String tempArg2 = this.getTemp();
 
                         String temp = this.newTemp();
@@ -248,25 +248,25 @@ public class QuadGen {
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(operacion, tempArg1, tempArg2, temp);
+                        Quads.GEN(operacion, tempArg1, tempArg2, temp);
                     } else {
-                        cuadruploAritmetico(arg2);
+                        arithQuad(arg2);
                         String lastTemp = this.getTemp();
                         String newTemp = this.newTemp();
                         String operacion = nodo.getAttribute("Value");
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(":=", arg1.getAttribute("Value"), newTemp);
+                        Quads.GEN(":=", arg1.getAttribute("Value"), newTemp);
                         String temp = this.getTemp();
                         newTemp = this.newTemp();
-                        Cuadruplos.GEN(operacion, temp, lastTemp, newTemp);
+                        Quads.GEN(operacion, temp, lastTemp, newTemp);
                     }
                 } else if (arg2IsFinal) {
                     if (arg2IsArray) {
-                        cuadruploAritmetico(arg1);
+                        arithQuad(arg1);
                         String tempArg1 = this.getTemp();
-                        cuadruploAritmetico(arg2);
+                        arithQuad(arg2);
                         String tempArg2 = this.getTemp();
 
                         String temp = this.newTemp();
@@ -274,24 +274,24 @@ public class QuadGen {
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(operacion, tempArg1, tempArg2, temp);
+                        Quads.GEN(operacion, tempArg1, tempArg2, temp);
                     } else {
-                        cuadruploAritmetico(arg1);
+                        arithQuad(arg1);
                         String lastTemp = this.getTemp();
                         String newTemp = this.newTemp();
                         String operacion = nodo.getAttribute("Value");
                         if (debug) {
                             System.out.println("Operacion: " + operacion);
                         }
-                        Cuadruplos.GEN(":=", arg2.getAttribute("Value"), newTemp);
+                        Quads.GEN(":=", arg2.getAttribute("Value"), newTemp);
                         String temp = this.getTemp();
                         newTemp = this.newTemp();
-                        Cuadruplos.GEN(operacion, lastTemp , temp, newTemp);
+                        Quads.GEN(operacion, lastTemp , temp, newTemp);
                     }
                 } else { // Both are OPs
-                    cuadruploAritmetico(arg1);
+                    arithQuad(arg1);
                     String tempArg1 = this.getTemp();
-                    cuadruploAritmetico(arg2);
+                    arithQuad(arg2);
                     String tempArg2 = this.getTemp();
 
                     String temp = this.newTemp();
@@ -299,12 +299,12 @@ public class QuadGen {
                     if (debug) {
                         System.out.println("Operacion: " + operacion);
                     }
-                    Cuadruplos.GEN(operacion, tempArg1, tempArg2, temp);
+                    Quads.GEN(operacion, tempArg1, tempArg2, temp);
                 }
                 break;
             }
             case "ARRAY": {
-                this.cuadruploArray(nodo);
+                this.arrQuad(nodo);
                 break;
             }
             default: {
@@ -313,7 +313,7 @@ public class QuadGen {
         }
     }
 
-    public void cuadruploAssignment(Element nodo) throws Exception {
+    public void assignQuad(Element nodo) throws Exception {
         Element arg1 = (Element) nodo.getFirstChild();
         Element arg2 = (Element) nodo.getLastChild();
 
@@ -325,11 +325,11 @@ public class QuadGen {
             case "Literal": {
                 String t = arg2.getAttribute("Value");
                 temp2 = this.newTemp();
-                this.Cuadruplos.GEN(":=", t, temp2);
+                this.Quads.GEN(":=", t, temp2);
                 break;
             }
             case "FunctionCall": {
-                this.cuadruploFuncCall(arg2);
+                this.functionCallQuad(arg2);
                 temp2 = "RET";
                 break;
             }
@@ -342,20 +342,20 @@ public class QuadGen {
             case "LessOrEqual":
             case "GreaterOrEqual":
             case "Different": {
-                cuadruploRelacional(arg2);
+                relQuad(arg2);
                 String newTemp = this.newTemp();
-                int M1 = Cuadruplos.getSize();
-                Cuadruplos.GEN(":=", "1", "", newTemp);
-                Cuadruplos.GEN_GOTO(Cuadruplos.getSize() + 2 + "");
-                int M2 = Cuadruplos.getSize();
-                Cuadruplos.GEN(":=", "0", "", newTemp);
+                int M1 = Quads.getSize();
+                Quads.GEN(":=", "1", "", newTemp);
+                Quads.GEN_GOTO(Quads.getSize() + 2 + "");
+                int M2 = Quads.getSize();
+                Quads.GEN(":=", "0", "", newTemp);
                 this.completa(M1, arg2.getAttribute("listaV"));
                 this.completa(M2, arg2.getAttribute("listaF"));
                 temp2 = this.getTemp();
                 break;
             }
             default: {
-                cuadruploAritmetico(arg2);
+                arithQuad(arg2);
                 temp2 = this.getTemp();
                 break;
             }
@@ -365,9 +365,9 @@ public class QuadGen {
             String isReturn = nodo.getAttribute("Return");
             if (isReturn.isEmpty()) {
                 temp1 = arg1.getAttribute("Value");
-                Cuadruplos.GEN(":=", temp2, temp1);
+                Quads.GEN(":=", temp2, temp1);
             } else {
-                Cuadruplos.GEN("FRET", temp2, "", "");
+                Quads.GEN("FRET", temp2, "", "");
             }
 
         } else if (arg1.getNodeName().equals("ARRAY")) {
@@ -380,27 +380,27 @@ public class QuadGen {
             if (argName.equals("ID") || argName.equals("Literal")) {
                 String Valex2 = arg.getAttribute("Value");
                 String newTemp = this.newTemp();
-                Cuadruplos.GEN("-", Valex2, indiceInicial, newTemp);
+                Quads.GEN("-", Valex2, indiceInicial, newTemp);
                 String temp = this.getTemp();
                 newTemp = this.newTemp();
-                Cuadruplos.GEN("*", temp, this.getTypeSize(tipo), newTemp);
+                Quads.GEN("*", temp, this.getTypeSize(tipo), newTemp);
                 temp = this.getTemp();
-                Cuadruplos.GEN("[]=", temp, temp2, Valex);
+                Quads.GEN("[]=", temp, temp2, Valex);
             } else {
-                cuadruploAritmetico(arg);
+                arithQuad(arg);
                 String temp = this.getTemp();
                 String newTemp = this.newTemp();
-                Cuadruplos.GEN("-", temp, indiceInicial, newTemp);
+                Quads.GEN("-", temp, indiceInicial, newTemp);
                 temp = this.getTemp();
                 newTemp = this.newTemp();
-                Cuadruplos.GEN("*", temp, this.getTypeSize(tipo), newTemp);
+                Quads.GEN("*", temp, this.getTypeSize(tipo), newTemp);
                 temp = this.getTemp();
-                Cuadruplos.GEN("[]=", temp, temp2, Valex);
+                Quads.GEN("[]=", temp, temp2, Valex);
             }
         }
     }
 
-    public void cuadruplosExpresion(Element nodo) throws Exception {
+    public void exprQuad(Element nodo) throws Exception {
         if (debug) {
             System.out.println("cuadruplosExpresion: " + nodo.getNodeName());
         }
@@ -419,31 +419,31 @@ public class QuadGen {
         if (arg1Name.equals("ID") || arg1Name.equals("Literal")) {
             t1 = arg1.getAttribute("Value");
         } else if (arg1Name.equals("ARRAY")) {
-            cuadruploArray(arg1);
+            arrQuad(arg1);
             t1 = this.getTemp();
         } else {
-            cuadruploAritmetico(arg1);
+            arithQuad(arg1);
             t1 = this.getTemp();
         }
 
         if (arg2Name.equals("ID") || arg2Name.equals("Literal")) {
             t2 = arg2.getAttribute("Value");
         } else if (arg2Name.equals("ARRAY")) {
-            cuadruploArray(arg2);
+            arrQuad(arg2);
             t2 = this.getTemp();
         } else {
-            cuadruploAritmetico(arg2);
+            arithQuad(arg2);
             t2 = this.getTemp();
         }
 
-        nodo.setAttribute("listaV", this.crearLista(Cuadruplos.getSize()));
-        nodo.setAttribute("listaF", this.crearLista(Cuadruplos.getSize() + 1));
+        nodo.setAttribute("listaV", this.crearLista(Quads.getSize()));
+        nodo.setAttribute("listaF", this.crearLista(Quads.getSize() + 1));
 
-        Cuadruplos.GEN("if" + op, t1, t2, "@");
-        Cuadruplos.GEN_GOTO("@");
+        Quads.GEN("if" + op, t1, t2, "@");
+        Quads.GEN_GOTO("@");
     }
 
-    public void cuadruploArray(Element nodo) throws Exception {
+    public void arrQuad(Element nodo) throws Exception {
         Element arg = (Element) nodo.getFirstChild();
         String argName = arg.getNodeName();
         String operacion = "=[]";
@@ -454,28 +454,28 @@ public class QuadGen {
         System.out.println("------" + IDArray);
         if (argName.equals("ID") || argName.equals("Literal")) {
             String newTemp = this.newTemp();
-            Cuadruplos.GEN("-", arg.getAttribute("Value"), indiceInicial, newTemp);
+            Quads.GEN("-", arg.getAttribute("Value"), indiceInicial, newTemp);
             String temp = this.getTemp();
             newTemp = this.newTemp();
-            Cuadruplos.GEN("*", temp, getTypeSize(tipo.split("\\.")[1]), newTemp);
+            Quads.GEN("*", temp, getTypeSize(tipo.split("\\.")[1]), newTemp);
             temp = this.getTemp();
             newTemp = this.newTemp();
-            Cuadruplos.GEN(operacion, IDArray, temp, newTemp);
+            Quads.GEN(operacion, IDArray, temp, newTemp);
         } else {
-            cuadruploAritmetico(arg);
+            arithQuad(arg);
             String temp = this.getTemp();
             String newTemp = this.newTemp();
-            Cuadruplos.GEN("-", temp, indiceInicial, newTemp);
+            Quads.GEN("-", temp, indiceInicial, newTemp);
             temp = this.getTemp();
             newTemp = this.newTemp();
-            Cuadruplos.GEN("*", temp, getTypeSize(tipo.split("\\.")[1]), newTemp);
+            Quads.GEN("*", temp, getTypeSize(tipo.split("\\.")[1]), newTemp);
             temp = this.getTemp();
             newTemp = this.newTemp();
-            Cuadruplos.GEN(operacion, IDArray, temp, newTemp);
+            Quads.GEN(operacion, IDArray, temp, newTemp);
         }
     }
 
-    private void cuadruploAnd(Element nodo) throws Exception {
+    private void andQuad(Element nodo) throws Exception {
         if (debug) {
             System.out.println("cuadruploAND: " + nodo.getNodeName());
         }
@@ -488,27 +488,27 @@ public class QuadGen {
         switch (arg1Name) {
             case "ID": {
                 String arg1Value = arg1.getAttribute("Value");
-                arg1.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "Literal": {
                 String arg1Value = arg1.getAttribute("Value");
-                arg1.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                cuadruploArray(arg1);
+                arrQuad(arg1);
                 String temp = this.getTemp();
-                arg1.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", temp, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", temp, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "GreaterThan":
@@ -517,42 +517,42 @@ public class QuadGen {
             case "LessOrEqual":
             case "GreaterOrEqual":
             case "Different": {
-                cuadruplosExpresion(arg1);
+                exprQuad(arg1);
                 break;
             }
             default: {
-                cuadruploRelacional(arg1);
+                relQuad(arg1);
                 break;
             }
 
         }
 
-        int M1 = Cuadruplos.getSize();
+        int M1 = Quads.getSize();
 
         switch (arg2Name) {
             case "ID": {
                 String arg2Value = arg2.getAttribute("Value");
-                arg2.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg2.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg2Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg2.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg2.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg2Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "Literal": {
                 String arg2Value = arg2.getAttribute("Value");
-                arg2.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg2.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg2Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg2.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg2.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg2Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                cuadruploArray(arg2);
+                arrQuad(arg2);
                 String temp = this.getTemp();
-                arg2.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg2.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", temp, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg2.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg2.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", temp, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "GreaterThan":
@@ -561,11 +561,11 @@ public class QuadGen {
             case "LessOrEqual":
             case "GreaterOrEqual":
             case "Different": {
-                cuadruplosExpresion(arg2);
+                exprQuad(arg2);
                 break;
             }
             default: {
-                cuadruploRelacional(arg2);
+                relQuad(arg2);
                 break;
             }
 
@@ -577,7 +577,7 @@ public class QuadGen {
         nodo.setAttribute("listaV", arg2.getAttribute("listaV"));
     }
 
-    private void cuadruploOr(Element nodo) throws Exception {
+    private void orQuad(Element nodo) throws Exception {
         if (debug) {
             System.out.println("cuadruploOR: " + nodo.getNodeName());
         }
@@ -590,27 +590,27 @@ public class QuadGen {
         switch (arg1Name) {
             case "ID": {
                 String arg1Value = arg1.getAttribute("Value");
-                arg1.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "Literal": {
                 String arg1Value = arg1.getAttribute("Value");
-                arg1.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                cuadruploArray(arg1);
+                arrQuad(arg1);
                 String temp = this.getTemp();
-                arg1.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", temp, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", temp, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "GreaterThan":
@@ -619,41 +619,41 @@ public class QuadGen {
             case "LessOrEqual":
             case "GreaterOrEqual":
             case "Different": {
-                cuadruplosExpresion(arg1);
+                exprQuad(arg1);
                 break;
             }
             default: {
-                cuadruploRelacional(arg1);
+                relQuad(arg1);
                 break;
             }
 
         }
-        int M1 = Cuadruplos.getSize();
+        int M1 = Quads.getSize();
 
         switch (arg2Name) {
             case "ID": {
                 String arg2Value = arg2.getAttribute("Value");
-                arg2.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg2.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg2Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg2.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg2.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg2Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "Literal": {
                 String arg2Value = arg2.getAttribute("Value");
-                arg2.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg2.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg2Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg2.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg2.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg2Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                cuadruploArray(arg2);
+                arrQuad(arg2);
                 String temp = this.getTemp();
-                arg2.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg2.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", temp, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg2.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg2.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", temp, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "GreaterThan":
@@ -662,11 +662,11 @@ public class QuadGen {
             case "LessOrEqual":
             case "GreaterOrEqual":
             case "Different": {
-                cuadruplosExpresion(arg2);
+                exprQuad(arg2);
                 break;
             }
             default: {
-                cuadruploRelacional(arg2);
+                relQuad(arg2);
                 break;
             }
         }
@@ -677,7 +677,7 @@ public class QuadGen {
         nodo.setAttribute("listaF", arg2.getAttribute("listaF"));
     }
 
-    private void cuadruploNot(Element nodo) throws Exception {
+    private void notQuad(Element nodo) throws Exception {
         if (debug) {
             System.out.println("cuadruploNOT: " + nodo.getNodeName());
         }
@@ -687,27 +687,27 @@ public class QuadGen {
         switch (arg1Name) {
             case "ID": {
                 String arg1Value = arg1Node.getAttribute("Value");
-                arg1Node.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1Node.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1Node.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1Node.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "Literal": {
                 String arg1Value = arg1Node.getAttribute("Value");
-                arg1Node.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1Node.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1Node.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1Node.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                cuadruploArray(arg1Node);
+                arrQuad(arg1Node);
                 String temp = this.getTemp();
-                arg1Node.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                arg1Node.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", temp, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                arg1Node.setAttribute("listaV", crearLista(Quads.getSize()));
+                arg1Node.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", temp, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "GreaterThan":
@@ -716,11 +716,11 @@ public class QuadGen {
             case "LessOrEqual":
             case "GreaterOrEqual":
             case "Different": {
-                cuadruplosExpresion(arg1Node);
+                exprQuad(arg1Node);
                 break;
             }
             default: {
-                cuadruploRelacional(arg1Node);
+                relQuad(arg1Node);
                 break;
             }
 
@@ -729,22 +729,23 @@ public class QuadGen {
         nodo.setAttribute("listaF", arg1Node.getAttribute("listaV"));
     }
 
-    private void cuadruploRelacional(Element node) throws Exception {
+    //Relational
+    private void relQuad(Element node) throws Exception {
         String nodeName = node.getNodeName();
         if (debug) {
             System.out.println("cuadruploRelacional: " + node.getNodeName());
         }
         switch (nodeName) {
             case "AND": {
-                cuadruploAnd(node);
+                andQuad(node);
                 break;
             }
             case "OR": {
-                cuadruploOr(node);
+                orQuad(node);
                 break;
             }
             case "NOT": {
-                cuadruploNot(node);
+                notQuad(node);
                 break;
             }
             case "GreaterThan":
@@ -753,14 +754,14 @@ public class QuadGen {
             case "LessOrEqual":
             case "GreaterOrEqual":
             case "Different": {
-                cuadruplosExpresion(node);
+                exprQuad(node);
                 break;
             }
 
         }
     }
 
-    private void cuadruploIf(Element nodo) throws Exception {
+    private void ifQuad(Element nodo) throws Exception {
         if (debug) {
             System.out.println("cuadruploIf: " + nodo.getNodeName());
         }
@@ -773,40 +774,40 @@ public class QuadGen {
             elseIf = (Element) lista.item(2);
             elseIfName = elseIf.getNodeName();
         }
-        this.cuadruplosExpresion(expression);
+        this.exprQuad(expression);
 
-        int M1 = Cuadruplos.getSize();
+        int M1 = Quads.getSize();
 
-        recorrer(body);
+        parseTree(body);
 
-        int N1 = Cuadruplos.GEN_GOTO("@");
+        int N1 = Quads.GEN_GOTO("@");
         nodo.setAttribute("listaF", crearLista(N1));
-        int M2 = Cuadruplos.getSize();
+        int M2 = Quads.getSize();
 
         this.completa(M1, expression.getAttribute("listaV"));
         this.completa(M2, expression.getAttribute("listaF"));
 
         switch (elseIfName) {
             case "IfStatement": {
-                cuadruploIf(elseIf);
+                ifQuad(elseIf);
                 String listaF = elseIf.getAttribute("listaF");
                 nodo.setAttribute("listaF", fusiona(listaF, nodo.getAttribute("listaF")));
                 break;
             }
             case "Body": {
-                recorrer(elseIf);
-                int M3 = Cuadruplos.GEN_GOTO("@");
+                parseTree(elseIf);
+                int M3 = Quads.GEN_GOTO("@");
                 String listaF = nodo.getAttribute("listaF");
                 nodo.setAttribute("listaF", fusiona(listaF, this.crearLista(M3)));
                 break;
             }
         }
 
-        int endOfIf = Cuadruplos.getSize();
+        int endOfIf = Quads.getSize();
         this.completa(endOfIf, nodo.getAttribute("listaF"));
     }
 
-    private void cuadruploWhile(Element nodo) throws Exception {
+    private void whileQuad(Element nodo) throws Exception {
         if (debug) {
             System.out.println("cuadruploWhile: " + nodo.getNodeName());
         }
@@ -815,50 +816,50 @@ public class QuadGen {
 
         String nodeName = expression.getNodeName();
 
-        int M1 = Cuadruplos.getSize();
+        int M1 = Quads.getSize();
         switch (nodeName) {
             case "ID": {
                 String arg1Value = expression.getAttribute("Value");
-                expression.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                expression.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                expression.setAttribute("listaV", crearLista(Quads.getSize()));
+                expression.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "Literal": {
                 String arg1Value = expression.getAttribute("Value");
-                expression.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                expression.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                expression.setAttribute("listaV", crearLista(Quads.getSize()));
+                expression.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                cuadruploArray(expression);
+                arrQuad(expression);
                 String temp = this.getTemp();
-                expression.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                expression.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", temp, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                expression.setAttribute("listaV", crearLista(Quads.getSize()));
+                expression.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", temp, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             default: {
-                this.cuadruploRelacional(expression);
+                this.relQuad(expression);
                 break;
             }
         }
 
-        int M2 = Cuadruplos.getSize();
-        recorrer(body);
+        int M2 = Quads.getSize();
+        parseTree(body);
 
         this.completa(M2, expression.getAttribute("listaV"));
-        Cuadruplos.GEN_GOTO(M1 + "");
-        int M3 = Cuadruplos.getSize();
+        Quads.GEN_GOTO(M1 + "");
+        int M3 = Quads.getSize();
         this.completa(M3, expression.getAttribute("listaF"));
 
     }
 
-    private void cuadruploRepeat(Element nodo) throws Exception {
+    private void repeatQuad(Element nodo) throws Exception {
         if (debug) {
             System.out.println("cuadruploRepeat: " + nodo.getNodeName());
         }
@@ -866,106 +867,106 @@ public class QuadGen {
         Element expression = (Element) nodo.getLastChild();
         String nodeName = expression.getNodeName();
 
-        int M1 = Cuadruplos.getSize();
-        recorrer(body);
+        int M1 = Quads.getSize();
+        parseTree(body);
 
         switch (nodeName) {
             case "ID": {
                 String arg1Value = expression.getAttribute("Value");
-                expression.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                expression.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                expression.setAttribute("listaV", crearLista(Quads.getSize()));
+                expression.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "Literal": {
                 String arg1Value = expression.getAttribute("Value");
-                expression.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                expression.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", arg1Value, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                expression.setAttribute("listaV", crearLista(Quads.getSize()));
+                expression.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", arg1Value, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                cuadruploArray(expression);
+                arrQuad(expression);
                 String temp = this.getTemp();
-                expression.setAttribute("listaV", crearLista(Cuadruplos.getSize()));
-                expression.setAttribute("listaF", crearLista(Cuadruplos.getSize() + 1));
-                Cuadruplos.GEN("if=", temp, "1", "@");
-                Cuadruplos.GEN_GOTO("@");
+                expression.setAttribute("listaV", crearLista(Quads.getSize()));
+                expression.setAttribute("listaF", crearLista(Quads.getSize() + 1));
+                Quads.GEN("if=", temp, "1", "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             default: {
-                this.cuadruploRelacional(expression);
+                this.relQuad(expression);
                 break;
             }
         }
 
         this.completa(M1, expression.getAttribute("listaF"));
-        int M2 = Cuadruplos.getSize();
+        int M2 = Quads.getSize();
         this.completa(M2, expression.getAttribute("listaV"));
     }
 
-    private void cuadruploFor(Element nodo) throws Exception {
+    private void forQuad(Element nodo) throws Exception {
         NodeList lista = nodo.getChildNodes();
         Element assignment = (Element) lista.item(0);
         Element end = (Element) lista.item(1);
         Element body = (Element) lista.item(2);
 
-        this.cuadruploAssignment(assignment);
-        Quad QUAD = Cuadruplos.item(Cuadruplos.getSize() - 1);
+        this.assignQuad(assignment);
+        Quad QUAD = Quads.item(Quads.getSize() - 1);
         String iterator = QUAD.res;
 
-        int M1 = Cuadruplos.getSize();
+        int M1 = Quads.getSize();
 
         String endName = end.getNodeName();
         switch (endName) {
             case "Literal":
             case "ID": {
-                String listaV = this.crearLista(Cuadruplos.getSize());
-                String listaF = this.crearLista(Cuadruplos.getSize() + 1);
+                String listaV = this.crearLista(Quads.getSize());
+                String listaF = this.crearLista(Quads.getSize() + 1);
                 nodo.setAttribute("listaV", listaV);
                 nodo.setAttribute("listaF", listaF);
                 String idValex = end.getAttribute("Value");
-                Cuadruplos.GEN("if<=", iterator, idValex, "@");
-                Cuadruplos.GEN_GOTO("@");
+                Quads.GEN("if<=", iterator, idValex, "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             case "ARRAY": {
-                this.cuadruploArray(end);
-                String listaV = this.crearLista(Cuadruplos.getSize());
-                String listaF = this.crearLista(Cuadruplos.getSize() + 1);
+                this.arrQuad(end);
+                String listaV = this.crearLista(Quads.getSize());
+                String listaF = this.crearLista(Quads.getSize() + 1);
                 nodo.setAttribute("listaV", listaV);
                 nodo.setAttribute("listaF", listaF);
                 String temp = this.getTemp();
-                Cuadruplos.GEN("if<=", iterator, temp, "@");
-                Cuadruplos.GEN_GOTO("@");
+                Quads.GEN("if<=", iterator, temp, "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
             default: {
-                this.cuadruploAritmetico(end);
-                String listaV = this.crearLista(Cuadruplos.getSize());
-                String listaF = this.crearLista(Cuadruplos.getSize() + 1);
+                this.arithQuad(end);
+                String listaV = this.crearLista(Quads.getSize());
+                String listaF = this.crearLista(Quads.getSize() + 1);
                 nodo.setAttribute("listaV", listaV);
                 nodo.setAttribute("listaF", listaF);
                 String temp = this.getTemp();
-                Cuadruplos.GEN("if<=", iterator, temp, "@");
-                Cuadruplos.GEN_GOTO("@");
+                Quads.GEN("if<=", iterator, temp, "@");
+                Quads.GEN_GOTO("@");
                 break;
             }
         }
-        int M2 = Cuadruplos.getSize();
-        recorrer(body);
-        Cuadruplos.GEN("+", iterator, "1", iterator);
-        Cuadruplos.GEN_GOTO(M1 + "");
-        int M3 = Cuadruplos.getSize();
+        int M2 = Quads.getSize();
+        parseTree(body);
+        Quads.GEN("+", iterator, "1", iterator);
+        Quads.GEN_GOTO(M1 + "");
+        int M3 = Quads.getSize();
 
         this.completa(M2, nodo.getAttribute("listaV"));
         this.completa(M3, nodo.getAttribute("listaF"));
 
     }
 
-    private void cuadruploFuncCall(Element functionNode) throws Exception {
+    private void functionCallQuad(Element functionNode) throws Exception {
         Element funcId = (Element) functionNode.getFirstChild();
         Element funcArgsNode = (Element) functionNode.getLastChild();
         if (funcArgsNode.getNodeName().equals("Arguments")) {
@@ -982,7 +983,7 @@ public class QuadGen {
                         break;
                     }
                     case "ARRAY": {
-                        this.cuadruploArray(currentNode);
+                        this.arrQuad(currentNode);
                         String temp = this.getTemp();
                         parameters.add(temp);
                         break;
@@ -996,13 +997,13 @@ public class QuadGen {
                     case "LessOrEqual":
                     case "GreaterOrEqual":
                     case "Different": {
-                        cuadruploRelacional(currentNode);
+                        relQuad(currentNode);
                         String newTemp = this.newTemp();
-                        int M1 = Cuadruplos.getSize();
-                        Cuadruplos.GEN(":=", "1", "", newTemp);
-                        Cuadruplos.GEN_GOTO(Cuadruplos.getSize() + 2 + "");
-                        int M2 = Cuadruplos.getSize();
-                        Cuadruplos.GEN(":=", "0", "", newTemp);
+                        int M1 = Quads.getSize();
+                        Quads.GEN(":=", "1", "", newTemp);
+                        Quads.GEN_GOTO(Quads.getSize() + 2 + "");
+                        int M2 = Quads.getSize();
+                        Quads.GEN(":=", "0", "", newTemp);
                         this.completa(M1, currentNode.getAttribute("listaV"));
                         this.completa(M2, currentNode.getAttribute("listaF"));
                         parameters.add(newTemp);
@@ -1013,7 +1014,7 @@ public class QuadGen {
                     case "Minus":
                     case "Times":
                     case "Plus": {
-                        cuadruploAritmetico(currentNode);
+                        arithQuad(currentNode);
                         String temp = this.getTemp();
                         parameters.add(temp);
                         break;
@@ -1022,11 +1023,11 @@ public class QuadGen {
             }
 
             for (String Param : parameters) {
-                Cuadruplos.GEN_PARAM(Param);
+                Quads.GEN_PARAM(Param);
             }
 
             String functionName = funcId.getAttribute("Value");
-            Cuadruplos.GEN_CALL(functionName);
+            Quads.GEN_CALL(functionName);
         }
 
     }
@@ -1043,7 +1044,7 @@ public class QuadGen {
         String[] splitList = lista.split(",");
         for (String indexS : splitList) {
             int index = Integer.valueOf(indexS);
-            Quad quad = Cuadruplos.cuadruplos.get(index);
+            Quad quad = Quads.cuadruplos.get(index);
             if (quad.op.equals("GOTO")) {
                 quad.arg1 = quadIndex + "";
             } else {
@@ -1053,7 +1054,7 @@ public class QuadGen {
     }
 
     public void print() {
-        Cuadruplos.print();
+        Quads.print();
     }
 
     private String getTypeSize(String tipo) {
