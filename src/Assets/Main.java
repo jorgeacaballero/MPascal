@@ -19,7 +19,7 @@ public class Main {
 	public static void exec() {
 		/* Odpremo vhodno datoteko. */
 		FileReader srcFile = null;
-		String srcName = mpascal.Main.prgName + ".pascal";
+		String srcName = mpascal.Main_Pascal_EU.prgName + ".pascal";
 		try {
 			srcFile = new FileReader(srcName);
 		} catch (FileNotFoundException _) {
