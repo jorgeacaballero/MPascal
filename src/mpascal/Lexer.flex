@@ -57,66 +57,66 @@ id = {letter}({letter}|{digit}|[_])*
 %%
 
 <YYINITIAL> {
-	[ \n\t]+		{ }
-	\"				{ string.setLength(0); string.append( yytext() ); yybegin(STRING); }
-	\'              { yybegin(CHARLITERAL); }
-	"{"				{ commentLine = yyline+1; stComment++; yybegin(COMMENT); }
-	"program"		{ return symbol("program", sym.PROGRAM); }
-	"begin"			{ return symbol("begin", sym.BEGIN); }
-	"writeln"		{ return symbol("writeln", sym.WRITE_LN); }
-	"readln"		{ return symbol("writeln", sym.READ_LN); }
-	"end"			{ return symbol("end", sym.END); }
-	"array"			{ return symbol("array", sym.ARRAY); }
-	"div"			{ return symbol("div", sym.DIV); }
-	"do"			{ return symbol("do", sym.DO); }
-	"else"			{ return symbol("else", sym.ELSE); }
-	"if"			{ return symbol("if", sym.IF); }
-	"not"			{ return symbol("not", sym.NOT); }
-	"of"			{ return symbol("of", sym.OF); }
-	"or"			{ return symbol("or", sym.OR); }
-	"then"			{ return symbol("then", sym.THEN); }
-	"var"			{ return symbol("var", sym.VAR); }
-	"while"			{ return symbol("while", sym.WHILE); }
-	"repeat"		{ return symbol("repeat", sym.REPEAT); }
-	"until"			{ return symbol("until", sym.UNTIL); }
-	"for"			{ return symbol("for", sym.FOR); }
-	"to"			{ return symbol("to", sym.TO); }
-	"in"			{ return symbol("in", sym.IN); }
-	"("				{ return symbol("(", sym.LEFT_PAR); }
-	")"				{ return symbol(")", sym.RIGHT_PAR); }
-	"["				{ return symbol("[", sym.LEFT_BRACKET); }
-	"]"				{ return symbol("]", sym.RIGHT_BRACKET); }
-	";"				{ return symbol(";", sym.SEMICOLON); }
-	":"				{ return symbol(":", sym.COLON); }
-	","				{ return symbol(",", sym.COMMA); }
-	"."				{ return symbol(".", sym.DOT); }
-	":="			{ return symbol(":=", sym.ASIGN); }
-	"+"				{ return symbol("+", sym.PLUS); }
-	"-"				{ return symbol("-", sym.MINUS); }
-	"/"				{ return symbol("/", sym.DIVIDE); }
-	"*"				{ return symbol("*", sym.PRODUCT); }
-	"mod"			{ return symbol("mod", sym.MOD); }
-	"="				{ return symbol("=", sym.EQUALS); }
-	"<>"			{ return symbol("<>", sym.NOT_EQUAL); }
-	">"				{ return symbol(">", sym.GREATER_THAN); }
-	"<"				{ return symbol("<", sym.LESS_THAN); }
-	">="			{ return symbol(">=", sym.GREATER_EQUALS); }
-	"<="			{ return symbol("<=", sym.LESS_EQUAL); }
-	"boolean"		{ return symbol("boolean", sym.BOOLEAN); }
-	"true"			{ return symbol("true", sym.TRUE); }
-	"false"			{ return symbol("false", sym.FALSE); }
-	"char"			{ return symbol("char", sym.CHAR); }
-	"integer"		{ return symbol("integer", sym.INTEGER); }
-	"string"		{ return symbol("string", sym.STRING); }
-	"function"		{ return symbol("function", sym.FUNCTION); }
-	"procedure"		{ return symbol("procedure", sym.PROCEDURE); }
+	[ \n\t]+				{ }
+	\"						{ string.setLength(0); string.append( yytext() ); yybegin(STRING); }
+	\'              		{ yybegin(CHARLITERAL); }
+	"{"						{ commentLine = yyline+1; stComment++; yybegin(COMMENT); }
+	"program"				{ return symbol("program", sym.PROGRAM); }
+	"begin"					{ return symbol("begin", sym.BEGIN); }
+	"writeln"				{ return symbol("writeln", sym.WRITE_LN); }
+	"readln"				{ return symbol("writeln", sym.READ_LN); }
+	"end"					{ return symbol("end", sym.END); }
+	"array"					{ return symbol("array", sym.ARRAY); }
+	"div"					{ return symbol("div", sym.DIV); }
+	"do"					{ return symbol("do", sym.DO); }
+	"else"					{ return symbol("else", sym.ELSE); }
+	"if"					{ return symbol("if", sym.IF); }
+	"not"					{ return symbol("not", sym.NOT); }
+	"of"					{ return symbol("of", sym.OF); }
+	"or"					{ return symbol("or", sym.OR); }
+	"then"					{ return symbol("then", sym.THEN); }
+	"var"					{ return symbol("var", sym.VAR); }
+	"while"					{ return symbol("while", sym.WHILE); }
+	"repeat"				{ return symbol("repeat", sym.REPEAT); }
+	"until"					{ return symbol("until", sym.UNTIL); }
+	"for"					{ return symbol("for", sym.FOR); }
+	"to"					{ return symbol("to", sym.TO); }
+	"in"					{ return symbol("in", sym.IN); }
+	"("						{ return symbol("(", sym.LEFT_PAR); }
+	")"						{ return symbol(")", sym.RIGHT_PAR); }
+	"["						{ return symbol("[", sym.LEFT_BRACKET); }
+	"]"						{ return symbol("]", sym.RIGHT_BRACKET); }
+	";"						{ return symbol(";", sym.SEMICOLON); }
+	":"						{ return symbol(":", sym.COLON); }
+	","						{ return symbol(",", sym.COMMA); }
+	"."						{ return symbol(".", sym.DOT); }
+	":="					{ return symbol(":=", sym.ASIGN); }
+	"+"						{ return symbol("+", sym.PLUS); }
+	"-"						{ return symbol("-", sym.MINUS); }
+	"/"						{ return symbol("/", sym.DIVIDE); }
+	"*"						{ return symbol("*", sym.PRODUCT); }
+	"mod"					{ return symbol("mod", sym.MOD); }
+	"="						{ return symbol("=", sym.EQUALS); }
+	"<>"					{ return symbol("<>", sym.NOT_EQUAL); }
+	">"						{ return symbol(">", sym.GREATER_THAN); }
+	"<"						{ return symbol("<", sym.LESS_THAN); }
+	">="					{ return symbol(">=", sym.GREATER_EQUALS); }
+	"<="					{ return symbol("<=", sym.LESS_EQUAL); }
+	"boolean"				{ return symbol("boolean", sym.BOOLEAN); }
+	"true"					{ return symbol("true", sym.TRUE); }
+	"false"					{ return symbol("false", sym.FALSE); }
+	"char"					{ return symbol("char", sym.CHAR); }
+	"integer"				{ return symbol("integer", sym.INTEGER); }
+	"string"				{ return symbol("string", sym.STRING); }
+	"function"				{ return symbol("function", sym.FUNCTION); }
+	"procedure"				{ return symbol("procedure", sym.PROCEDURE); }
 
-	{integer}		{ return symbol("integerconst", sym.INT_CONST, yytext()); }
+	{integer}				{ return symbol("integerconst", sym.INT_CONST, yytext()); }
 
-	{id}			{ Symbol newsym = symbol("id", sym.ID, yytext());
-					  //symtab.enter(yytext(), newsym);
-					  return newsym;
-					}
+	{id}					{ Symbol newsym = symbol("id", sym.ID, yytext());
+								//symtab.enter(yytext(), newsym);
+								return newsym;
+							}
 
 	.				{ error("Illegal character <"+ yytext()+"> @ Line " + (yyline+1)); }
 }
@@ -135,7 +135,7 @@ id = {letter}({letter}|{digit}|[_])*
 
 
 <CHARLITERAL> {
-  {single_char}\'            { yybegin(YYINITIAL); return symbol("char literal", sym.CHAR_CONS, yytext().charAt(0)); }
+  {single_char}\'				{ yybegin(YYINITIAL); return symbol("char literal", sym.CHAR_CONS, yytext().charAt(0)); }
 
   /* escape sequences */
   "\\b"\'                        { yybegin(YYINITIAL); return symbol("char literal", sym.CHAR_CONS, '\b');}
@@ -149,11 +149,11 @@ id = {letter}({letter}|{digit}|[_])*
 
 
   /* error cases */
-  {line_term}               { throw new RuntimeException("Unterminated character literal at end of line"); }
+  {line_term}               	{ throw new RuntimeException("Unterminated character literal at end of line"); }
 }
 
 <COMMENT> {
-	"{"		{ stComment++; }
-	"}"		{ stComment--; if(stComment==0) yybegin(YYINITIAL); }
+	"{"							{ stComment++; }
+	"}"							{ stComment--; if(stComment==0) yybegin(YYINITIAL); }
 	[^]	{ }
 }

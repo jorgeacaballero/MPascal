@@ -34,28 +34,6 @@ parser code {:
             //System.err.println("pero se encontró el token \'" + sym.terminalNames[s.sym] + "\' en la Linea: " + s.left + ", Columna: " + s.right + ". " ); 
 	}
 
-        /*
-        public void expected(){
-            List<Integer> token_list = this.expected_token_ids();
-            if (token_list.size() <= 0){
-                    token_list = this.expected_token_ids();
-            }
-            String expected_tokens = "";
-            for (int i = 0 ; i < token_list.size(); i++){
-                    int id = token_list.get(i);
-                    if (id == 1){ //error
-                        continue;
-                    }
-                    String terminal_name = sym.terminalNames[id];
-                    if (i == token_list.size() - 1){
-                        expected_tokens += terminal_name;
-                    }else{
-                        expected_tokens += terminal_name + " , ";
-                    }
-            }
-            System.err.print("Se esperaba alguno de los siguientes tokens: [" + expected_tokens + "] ");
-        };
-        */
 
         public void report_fatal_error(String message, Object info) {
             throw new Error("Error Fatal Sintáctico, no se pudo recuperar del problema.");
