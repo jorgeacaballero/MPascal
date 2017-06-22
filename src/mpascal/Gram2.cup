@@ -23,15 +23,12 @@ parser code {:
         @Override
 	public void report_error(String message, Object info) {
             System.err.print("Syntax error: " ); 
-            //expected();
             System.err.println("found token \'" + ((Symbol)info).value + "\' at line: " + ((Symbol)info).left + ", column: " + ((Symbol)info).right + ". " ); 
         }
 
         @Override
 	public void syntax_error(Symbol s){
             System.err.print("Syntax errors: " ); 
-            //expected();
-            //System.err.println("pero se encontró el token \'" + sym.terminalNames[s.sym] + "\' en la Linea: " + s.left + ", column: " + s.right + ". " ); 
 	}
 
 
@@ -54,42 +51,38 @@ action code {:
         int offset = 0;
         String ambito = "main";
 
-        /* Contruccion del arbol en XML */
-
-        Document xmlDocument = null;    
+        Document TreeXML = null;    
         Element nodoPadre = null; 
 
-        private void iniXML() {
-            if (xmlDocument == null) {
+        private void createXMLFile() {
+            if (TreeXML == null) {
                 try {
                     DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-                    xmlDocument = docBuilder.newDocument();//Crear el documento XML
+                    TreeXML = docBuilder.newDocument();
                 } catch (Exception e) {
                     System.err.println("el Arbol tiene ERROR: " + e.getMessage());
                 }
             }
         }
 
-        public void escribirXML() throws javax.xml.transform.TransformerConfigurationException, javax.xml.transform.TransformerException {
-            //Escribir el archivo XML         
-            xmlDocument.appendChild(nodoPadre);
+        public void writeToXML() throws javax.xml.transform.TransformerConfigurationException, javax.xml.transform.TransformerException {
+      
+            TreeXML.appendChild(nodoPadre);
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
-            DOMSource origen = new DOMSource(xmlDocument);
-            StreamResult result = new StreamResult(new File("AST.xml"));
-            transformer.transform(origen, result);
+            DOMSource src = new DOMSource(TreeXML);
+            StreamResult res = new StreamResult(new File("AST.xml"));
+            transformer.transform(src, res);
         }
 :}
 
-
-/* Terminals (tokens returned by the scanner). */
-//Functiones
+//Functions
 terminal Element  Write;
 terminal Element  Read;
 
 
-//Operadores
+//Operators
 terminal String   Equal;
 terminal String   NotEqual;
 terminal String   GreaterThan;
@@ -106,7 +99,7 @@ terminal String   Mod;
 terminal String   Divided;
 terminal String   Div;
 
-//Estructuras de control
+//Statements
 terminal Element  If;
 terminal Element  Then;
 terminal Element  Else;
@@ -119,7 +112,7 @@ terminal Element  While;
 terminal Element  Repeat;
 terminal Element  Until;
 
-//Tipos de datos
+//DataTypes
 terminal Element  Array;
 terminal Element  Of;
 terminal Element  Var;
@@ -127,7 +120,8 @@ terminal String   Boolean;
 terminal String   Char;
 terminal String   Integer;
 terminal String   String;
-//Otros
+
+//ETC
 terminal String   LBracket;
 terminal String   RBracket;
 terminal String   Comma;
@@ -143,7 +137,7 @@ terminal String   DotDot;
 terminal String   Dot;
 terminal String   Semicolon;
 
-/*Literales*/
+//Literals
 terminal String         IntLit;
 terminal Character      CharLit;
 terminal String         BooleanLit;
@@ -152,14 +146,14 @@ terminal String         StringLit;
 /* Non terminals */
 
 nonterminal Element              expr;
-nonterminal Element              AritExpr1;
-nonterminal Element              AritExpr2;
-nonterminal Element              AritExpr3;
-nonterminal Element              BoolExpr1;
-nonterminal Element              BoolExpr2;
-nonterminal Element              BoolExpr3;
+nonterminal Element              AddSubtractOp;
+nonterminal Element              MultDivOp;
+nonterminal Element              ExtraArithOp;
+nonterminal Element              BoolOrOp;
+nonterminal Element              BoolAndOp;
+nonterminal Element              CompBoolOp;
 nonterminal Element              literal;
-nonterminal Element              program;
+nonterminal Element              pprogram;
 nonterminal Element              block;
 nonterminal Element              blockProc;
 nonterminal Element              decls;
@@ -184,9 +178,9 @@ nonterminal Element              var;
 
 nonterminal Element              exprlist;
 nonterminal Element              opRelacion;
-nonterminal Element              opArit;
-nonterminal Element              opUnario;
-nonterminal Element              opLogico;
+nonterminal Element              ArithmeticOp;
+nonterminal Element              UnaryOp;
+nonterminal Element              LogicOp;
 nonterminal Element              stmts;
 nonterminal Element              stmt;
 nonterminal Element              assignstmt;
@@ -212,22 +206,22 @@ precedence left Else, Semicolon;
 precedence left error;
 
 
-program         ::= Program var:v Semicolon block:b Dot
+pprogram         ::= Program var:v Semicolon block:b Dot
                 {:
-                    iniXML();
-                    nodoPadre = xmlDocument.createElement("Program"); 
+                    createXMLFile();
+                    nodoPadre = TreeXML.createElement("Program"); 
                     if (v != null) { nodoPadre.appendChild(v); }
                     if(b != null) { nodoPadre.appendChild(b); }
-                    escribirXML();
+                    writeToXML();
                     SemAnal.llenarTablaSimbolos(nodoPadre);
                 :}
                 |   Program var:v1 LPar vars:vs RPar Semicolon block:b Dot
                 {:
-                    iniXML();
-                    nodoPadre = xmlDocument.createElement("Program"); 
+                    createXMLFile();
+                    nodoPadre = TreeXML.createElement("Program"); 
                     if (v1 != null) { nodoPadre.appendChild(v1); }
                     if (vs != null) { 
-                        Element nPadre = xmlDocument.createElement("ProgramArgs");
+                        Element nPadre = TreeXML.createElement("ProgramArgs");
                         ArrayList<Element> asd = new ArrayList();
                         NodeList temp = vs.getChildNodes();
                         if (temp.getLength() > 0) {
@@ -243,7 +237,7 @@ program         ::= Program var:v Semicolon block:b Dot
                         nodoPadre.appendChild(nPadre);
                     }
                     if(b != null) { nodoPadre.appendChild(b); }
-                    escribirXML();
+                    writeToXML();
                     SemAnal.llenarTablaSimbolos(nodoPadre);
                 :}
                 | error block Dot
@@ -252,8 +246,8 @@ program         ::= Program var:v Semicolon block:b Dot
 
 block           ::= decls:d blockstmt:s
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Block");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Block");
                     if (d != null) { nPadre.appendChild(d); }
                     if (s != null) { nPadre.appendChild(s); }
                     RESULT = nPadre;                    
@@ -263,8 +257,8 @@ block           ::= decls:d blockstmt:s
 
 blockProc       ::= procInlineDecls:p Begin stmts:s End
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Block");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Block");
                     if (p != null) { nPadre.appendChild(p); }
                     if (s != null) { nPadre.appendChild(s); }
                     RESULT = nPadre;                    
@@ -275,8 +269,8 @@ blockProc       ::= procInlineDecls:p Begin stmts:s End
 decls           ::= /* empty */ {: RESULT = null; :}
                 |   decl:d decls:ds
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Declarations");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Declarations");
                     if (d != null && ds == null) {
                         RESULT = d;
                     } else if (d == null && ds != null){
@@ -286,7 +280,7 @@ decls           ::= /* empty */ {: RESULT = null; :}
                         if (!ds.getNodeName().equals("Declarations")) {
                             nPadre.appendChild(ds);
                         }else{
-                            Element nodoPadre = xmlDocument.createElement("ProgramArgs");
+                            Element nodoPadre = TreeXML.createElement("ProgramArgs");
                             ArrayList<Element> asd = new ArrayList();
                             NodeList temp = ds.getChildNodes();
                             for (int i = 0; i < temp.getLength(); i++) {
@@ -306,18 +300,18 @@ decls           ::= /* empty */ {: RESULT = null; :}
 
 decl            ::= Var vardecls:vd
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = vd;
                 :}
                 |   functionDecl:f
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = f;
                                         
                 :}
                 |   procedureDecl:p
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = p;                   
                 :}
                 |   decl:d error
@@ -325,8 +319,8 @@ decl            ::= Var vardecls:vd
 
 functionDecl    ::= Function var:i LPar inlineArgs:in RPar Colon type:t Semicolon blockProc:b Semicolon
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("FunctionDeclaration");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("FunctionDeclaration");
                     nPadre.setAttribute("ID", i.getAttribute("Value"));
                     nPadre.setAttribute("Type", t.getAttribute("Value"));
                     if (in != null) { nPadre.appendChild(in); }
@@ -336,8 +330,8 @@ functionDecl    ::= Function var:i LPar inlineArgs:in RPar Colon type:t Semicolo
                 :}
                 |   Function var:i LPar RPar Colon type:t Semicolon blockProc:b Semicolon
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("FunctionDeclaration");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("FunctionDeclaration");
                     nPadre.setAttribute("ID", i.getAttribute("Value"));
                     nPadre.setAttribute("Type", t.getAttribute("Value"));
                     if (b != null) { nPadre.appendChild(b); }
@@ -349,8 +343,8 @@ functionDecl    ::= Function var:i LPar inlineArgs:in RPar Colon type:t Semicolo
 
 procedureDecl   ::= Procedure var:i LPar inlineArgs:in RPar Semicolon blockProc:b Semicolon
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ProcedureDeclaration");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ProcedureDeclaration");
                     nPadre.setAttribute("ID", i.getAttribute("Value"));
                     if (in != null) { nPadre.appendChild(in); }
                     if (b != null) { nPadre.appendChild(b); }
@@ -359,8 +353,8 @@ procedureDecl   ::= Procedure var:i LPar inlineArgs:in RPar Semicolon blockProc:
                 :}
                 |   Procedure var:i LPar RPar Semicolon blockProc:b Semicolon
                 {:
-                    iniXML(); 
-                    Element nPadre = xmlDocument.createElement("ProcedureDeclaration");
+                    createXMLFile(); 
+                    Element nPadre = TreeXML.createElement("ProcedureDeclaration");
                     nPadre.setAttribute("ID", i.getAttribute("Value"));
                     if (b != null) { nPadre.appendChild(b); }
 
@@ -372,8 +366,8 @@ procedureDecl   ::= Procedure var:i LPar inlineArgs:in RPar Semicolon blockProc:
 procInlineDecls  ::= {: RESULT = null; :}
                 |   procInlineDecl:pd procInlineDecls:pds
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ProcInlinceDecls");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ProcInlinceDecls");
                     if (pd != null && pds == null) {
                         RESULT = pd;
                     } else if(pd == null && pds != null) {
@@ -388,7 +382,7 @@ procInlineDecls  ::= {: RESULT = null; :}
 
 procInlineDecl  ::= Var vardecls:vd
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = vd;
                 :}
                 ;
@@ -396,15 +390,15 @@ procInlineDecl  ::= Var vardecls:vd
 
 inlineArgs      ::= inlineArg:ia
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Arguments");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Arguments");
                     nPadre.appendChild(ia);
                     RESULT = nPadre;
                 :}
                 |   inlineArg:ia Semicolon inlineArgs:ias
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Arguments");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Arguments");
                     nPadre.appendChild(ia);
                     ArrayList<Element> asd = new ArrayList();
                     NodeList temp = ias.getChildNodes();
@@ -420,8 +414,8 @@ inlineArgs      ::= inlineArg:ia
 
 inlineArg       ::= Var vars:vs Colon identtype:t
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("inlineArg");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("inlineArg");
                     if(vs != null) {
                         ArrayList<Element> asd = new ArrayList();
                         if (!vs.hasChildNodes()) {
@@ -441,7 +435,7 @@ inlineArg       ::= Var vars:vs Colon identtype:t
                         }
                     }
                     if( t != null ) {
-                        Element nType = xmlDocument.createElement("Type");
+                        Element nType = TreeXML.createElement("Type");
                         nType.setAttribute("Value",t);
                         String size = "";
                         if(t.equals("integer")){
@@ -461,8 +455,8 @@ inlineArg       ::= Var vars:vs Colon identtype:t
                 :}
                 |   vars:vs Colon identtype:t 
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("inlineArg");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("inlineArg");
                     if(vs != null) {
                        ArrayList<Element> asd = new ArrayList();
                         if (!vs.hasChildNodes()) {
@@ -482,7 +476,7 @@ inlineArg       ::= Var vars:vs Colon identtype:t
                         }
                     }
                     if( t != null ) {
-                        Element nType = xmlDocument.createElement("Type");
+                        Element nType = TreeXML.createElement("Type");
                         nType.setAttribute("Value",t);
                         String size = "";
                         if(t.equals("integer")){
@@ -505,15 +499,15 @@ inlineArg       ::= Var vars:vs Colon identtype:t
 vardecls        ::=  /* Empty */
                 |   vardecl:v Semicolon vardecls:vs
                 {:
-                    iniXML();
+                    createXMLFile();
                     if(v != null && vs == null ){
                         RESULT = v;
                     } else if(v == null && vs != null){
-                        Element nPadre = xmlDocument.createElement("VarDeclaration");
+                        Element nPadre = TreeXML.createElement("VarDeclaration");
                         nPadre.appendChild(vs);
                         RESULT = nPadre;
                     } else if(v != null && vs != null){
-                        Element nPadre = xmlDocument.createElement("VarDeclarations");
+                        Element nPadre = TreeXML.createElement("VarDeclarations");
                         nPadre.appendChild(v);
                         if (vs.getNodeName().equals("VarDeclaration")) {
                             nPadre.appendChild(vs);
@@ -536,8 +530,8 @@ vardecls        ::=  /* Empty */
 
 vardecl         ::= vars:vs Colon type:t
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("VarDeclaration");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("VarDeclaration");
                     if (vs != null) { 
                         ArrayList<Element> asd = new ArrayList();
                         if (!vs.hasChildNodes()) {
@@ -564,12 +558,12 @@ vardecl         ::= vars:vs Colon type:t
 
 vars            ::= var:v
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = v;                    
                 :}
                 |  vars:vs Comma var:v
                 {:
-                    iniXML();
+                    createXMLFile();
                     vs.appendChild(v);
                     RESULT = vs;                    
                 :}
@@ -577,17 +571,17 @@ vars            ::= var:v
 
 var             ::= Id:i
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ID");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ID");
                     nPadre.setAttribute("Value",i);
                     nPadre.setAttribute("Line",ileft + "");
                     nPadre.setAttribute("Column",iright + "");
                     RESULT = nPadre;                    
                 :}
-                |   Id:i LBracket AritExpr1:e1 RBracket
+                |   Id:i LBracket AddSubtractOp:e1 RBracket
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ARRAY");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ARRAY");
                     nPadre.setAttribute("Value",i);
                     nPadre.setAttribute("Line",ileft + "");
                     nPadre.setAttribute("Column",iright + "");
@@ -598,8 +592,8 @@ var             ::= Id:i
 
 type            ::= identtype:it
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Type");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Type");
                     if(it != null) {
                         nPadre.setAttribute("Value",it);
                         String size = "";
@@ -619,8 +613,8 @@ type            ::= identtype:it
                 :}
                 |   arraytype:ats
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Type");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Type");
                     if(ats != null) {
                         nPadre.setAttribute("Value",ats.getAttribute("Value"));
                         nPadre.setAttribute("Size",ats.getAttribute("Size"));
@@ -650,8 +644,8 @@ identtype       ::= Char:c
 
 arraytype       ::= Array LBracket literal:l1 DotDot literal:l2 RBracket Of identtype:t
                 {:  
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ArrayType");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ArrayType");
                     if(t != null){
                         nPadre.setAttribute("Value","Array."+t+"."+l1.getAttribute("Value")+"."+l2.getAttribute("Value"));
                         int size = 0;
@@ -675,15 +669,15 @@ arraytype       ::= Array LBracket literal:l1 DotDot literal:l2 RBracket Of iden
 
 stmts           ::= stmt:s
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Statements");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Statements");
                     if (s != null) { nPadre.appendChild(s); RESULT = nPadre;}
                     
                 :}
                 |   stmt:s Semicolon stmts:ss
                 {:
-                    Element nPadre = xmlDocument.createElement("Statements");
-                    iniXML();
+                    Element nPadre = TreeXML.createElement("Statements");
+                    createXMLFile();
                     if(s != null && ss == null){
                         RESULT = s;
                     } else if(s == null && ss != null){
@@ -699,47 +693,47 @@ stmts           ::= stmt:s
 
 stmt            ::= /* Empty */ {: RESULT = null; :}
                 |   FunctionCall:fc {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = fc;
                 :}
                 | assignstmt:s
                 {:
-                    iniXML();               
+                    createXMLFile();               
                     RESULT = s;
                 :}
                 | ifstmt:s
                 {:
-                    iniXML();              
+                    createXMLFile();              
                     RESULT = s;
                 :}
                 | forstmt:s
                 {:
-                    iniXML();             
+                    createXMLFile();             
                     RESULT = s;
                 :}
                 | whilestmt:s
                 {:
-                    iniXML();   
+                    createXMLFile();   
                     RESULT = s;
                 :}
                 | repeatstmt:s
                 {:
-                    iniXML();          
+                    createXMLFile();          
                     RESULT = s;
                 :}
                 | readstmt:s
                 {:
-                    iniXML();          
+                    createXMLFile();          
                     RESULT = s;
                 :}
                 | writestmt:s
                 {:
-                    iniXML();       
+                    createXMLFile();       
                     RESULT = s;
                 :}
                 | blockstmt:s
                 {:
-                    iniXML();             
+                    createXMLFile();             
                     RESULT = s;
                 :}
                 |   stmt:s error  
@@ -747,8 +741,8 @@ stmt            ::= /* Empty */ {: RESULT = null; :}
 
 blockstmt       ::= Begin stmts:s End
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Body");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Body");
                     if (s != null) { nPadre.appendChild(s); }             
                     RESULT = nPadre;
                 :}
@@ -757,8 +751,8 @@ blockstmt       ::= Begin stmts:s End
 
 assignstmt      ::= var:i Assign expr:e 
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Assignment");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Assignment");
                     if (i != null) { nPadre.appendChild(i); }
                     if (e != null) { nPadre.appendChild(e); }                   
                     RESULT = nPadre;
@@ -768,8 +762,8 @@ assignstmt      ::= var:i Assign expr:e
 
 ifstmt          ::= If:i expr:e Then stmt:s Else stmt:s2
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("IfStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("IfStatement");
                     nPadre.setAttribute("Line",ileft + "");
                     nPadre.setAttribute("Column",iright + "");
                     if (e != null) { nPadre.appendChild(e); }         
@@ -780,8 +774,8 @@ ifstmt          ::= If:i expr:e Then stmt:s Else stmt:s2
                 :}
                 |   If:i expr:e Then stmt:s
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("IfStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("IfStatement");
                     nPadre.setAttribute("Line",ileft + "");
                     nPadre.setAttribute("Column",iright + "");
                     if (e != null) { nPadre.appendChild(e); }         
@@ -794,8 +788,8 @@ ifstmt          ::= If:i expr:e Then stmt:s Else stmt:s2
 
 forstmt         ::= For assignstmt:a To expr:e Do stmts:s
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ForStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ForStatement");
                     if (a != null) { nPadre.appendChild(a); }
                     if (e != null) { nPadre.appendChild(e); }
                     if (s != null) { nPadre.appendChild(s); }
@@ -806,8 +800,8 @@ forstmt         ::= For assignstmt:a To expr:e Do stmts:s
 
 whilestmt       ::= While expr:e Do stmt:s
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("WhileStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("WhileStatement");
                     if (e != null) { nPadre.appendChild(e); }
                     if (s != null) { nPadre.appendChild(s); }
                     RESULT = nPadre;
@@ -817,8 +811,8 @@ whilestmt       ::= While expr:e Do stmt:s
 
 repeatstmt      ::= Repeat stmts:s Until expr:e
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("RepeatStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("RepeatStatement");
                     if (s != null) { nPadre.appendChild(s); }
                     if (e != null) { nPadre.appendChild(e); }
                     RESULT = nPadre;
@@ -828,15 +822,15 @@ repeatstmt      ::= Repeat stmts:s Until expr:e
 
 writestmt       ::= Write LPar string:s RPar
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("WriteStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("WriteStatement");
                     if (s != null) { nPadre.appendChild(s); }
                     RESULT = nPadre;
                 :}
                 |   Write LPar string:s Comma var:v RPar
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("WriteStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("WriteStatement");
                     if (s != null) { nPadre.appendChild(s); }
                     if (v != null) { nPadre.appendChild(v); }
                     RESULT = nPadre;
@@ -846,190 +840,190 @@ writestmt       ::= Write LPar string:s RPar
 
 readstmt        ::= Read LPar var:v RPar
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ReadStatement");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ReadStatement");
                     if (v != null) { nPadre.appendChild(v); }
                     RESULT = nPadre;
                 :}
                 |   readstmt error
                 ;
 
-expr            ::= AritExpr1:e1
+expr            ::= AddSubtractOp:e1
                 {:
-                    iniXML();    
+                    createXMLFile();    
                     RESULT = e1;
                 :}
-                |   BoolExpr1:b1 
+                |   BoolOrOp:b1 
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = b1;
                 :}
-                |   AritExpr1:e1 opRelacion:op AritExpr1:e2
+                |   AddSubtractOp:e1 opRelacion:op AddSubtractOp:e2
                 {:
-                    iniXML();
+                    createXMLFile();
                     op.appendChild(e1);
                     op.appendChild(e2);
                     RESULT = op;
                 :} 
                 |   FunctionCall:fc
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = fc;
                 :}
                 ;
 
 FunctionCall    ::= var:v LPar exprlist:el RPar
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("FunctionCall");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("FunctionCall");
                     if (v != null) { nPadre.appendChild(v);}
                     if (el != null) { nPadre.appendChild(el);}
                     RESULT = nPadre;
                 :}
                 |   var:v LPar RPar
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("FunctionCall");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("FunctionCall");
                     if (v != null) { nPadre.appendChild(v);}
                     RESULT = nPadre;
                 :}
                 ;
 
-AritExpr1       ::= AritExpr1:e1 Sum AritExpr2:e2
+AddSubtractOp       ::= AddSubtractOp:e1 Sum MultDivOp:e2
                 {:
-                    iniXML();
-                    Element node = xmlDocument.createElement("Plus");
+                    createXMLFile();
+                    Element node = TreeXML.createElement("Plus");
                     node.setAttribute("Value","+");
                     node.appendChild(e1);
                     node.appendChild(e2);
                     RESULT = node;
                 :}
-                |   AritExpr1:e1 Minus AritExpr2:e2
+                |   AddSubtractOp:e1 Minus MultDivOp:e2
                 {:
-                    iniXML();
-                    Element node = xmlDocument.createElement("Minus");
+                    createXMLFile();
+                    Element node = TreeXML.createElement("Minus");
                     node.setAttribute("Value","-");
                     node.appendChild(e1);
                     node.appendChild(e2);
                     RESULT = node;
                 :}
-                |   AritExpr2:e1
+                |   MultDivOp:e1
                 {:
-                    iniXML();                
+                    createXMLFile();                
                     RESULT = e1;
                 :}
                 ;
 
-AritExpr2           ::= AritExpr2:e1 Times AritExpr3:e2
+MultDivOp           ::= MultDivOp:e1 Times ExtraArithOp:e2
                 {:
-                    iniXML();
-                    Element node = xmlDocument.createElement("Times");
+                    createXMLFile();
+                    Element node = TreeXML.createElement("Times");
                     node.setAttribute("Value","*");
                     node.appendChild(e1);
                     node.appendChild(e2);
                     RESULT = node;
                 :}
-                | AritExpr2:e1 Divided AritExpr3:e2
+                | MultDivOp:e1 Divided ExtraArithOp:e2
                 {:
-                    iniXML();
-                    Element node = xmlDocument.createElement("Div");
+                    createXMLFile();
+                    Element node = TreeXML.createElement("Div");
                     node.setAttribute("Value","/");
                     node.appendChild(e1);
                     node.appendChild(e2);
                     RESULT = node   ;
                 :}
-                |   AritExpr3:e 
+                |   ExtraArithOp:e 
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = e;
                 :}
                 ;
 
-AritExpr3       ::= literal:l
+ExtraArithOp       ::= literal:l
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = l; 
                     
                 :}
                 |   var:v
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = v; 
                     
                 :}
-                |  opUnario:op AritExpr3:e1
+                |  UnaryOp:op ExtraArithOp:e1
                 {:
-                    iniXML();
+                    createXMLFile();
                     op.appendChild(e1);
                     RESULT = op;
                 :}
-                |  opLogico:op AritExpr3:e1
+                |  LogicOp:op ExtraArithOp:e1
                 {:
-                    iniXML();
+                    createXMLFile();
                     op.appendChild(e1);
                     RESULT = op;
                 :}
-                |  opArit:op AritExpr3:e1
+                |  ArithmeticOp:op ExtraArithOp:e1
                 {:
-                    iniXML();
+                    createXMLFile();
                     op.appendChild(e1);
                     RESULT = op;
                 :}
-                |   LPar AritExpr1:e1 RPar
+                |   LPar AddSubtractOp:e1 RPar
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = e1;
                 :}
                 ;
 
-BoolExpr1       ::= BoolExpr1:e1 Or:op BoolExpr2:e2
+BoolOrOp       ::= BoolOrOp:e1 Or:op BoolAndOp:e2
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("OR");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("OR");
                     nPadre.setAttribute("Value",op);
                     nPadre.appendChild(e1);
                     nPadre.appendChild(e2);
                     RESULT = nPadre;
                 :} 
-                |   BoolExpr2:e1
+                |   BoolAndOp:e1
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = e1;
                 :} 
                 ;
 
-BoolExpr2       ::= BoolExpr2:e1 And:op BoolExpr3:e2
+BoolAndOp       ::= BoolAndOp:e1 And:op CompBoolOp:e2
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("AND");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("AND");
                     nPadre.setAttribute("Value",op);
                     nPadre.appendChild(e1);
                     nPadre.appendChild(e2);
                     RESULT = nPadre;
                 :} 
-                | BoolExpr3:e1
+                | CompBoolOp:e1
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = e1;
                 :} 
                 ;
 
-BoolExpr3       ::= LPar AritExpr1:e1  opRelacion:op  AritExpr1:e2 RPar
+CompBoolOp       ::= LPar AddSubtractOp:e1  opRelacion:op  AddSubtractOp:e2 RPar
                 {:
-                    iniXML();
+                    createXMLFile();
                     op.appendChild(e1);
                     op.appendChild(e2);
                     RESULT = op;
                 :} 
-                | LPar BoolExpr1:e1 RPar
+                | LPar BoolOrOp:e1 RPar
                 {:
-                    iniXML();
+                    createXMLFile();
                     RESULT = e1;
                 :}
-                | Not:op BoolExpr3:e1
+                | Not:op CompBoolOp:e1
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("NOT");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("NOT");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     nPadre.appendChild(e1);
                     RESULT = nPadre;
@@ -1038,92 +1032,92 @@ BoolExpr3       ::= LPar AritExpr1:e1  opRelacion:op  AritExpr1:e2 RPar
 
 opRelacion      ::= Equal:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Equals");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Equals");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   NotEqual:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Different");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Different");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   GreaterThan:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("GreaterThan");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("GreaterThan");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   LessThan:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("LessThan");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("LessThan");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   LessEqualThan:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("LessOrEqual");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("LessOrEqual");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   GreaterEqualThan:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("GreaterOrEqual");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("GreaterOrEqual");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 ;
 
 
-opArit          ::= Mod:op
+ArithmeticOp          ::= Mod:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ArithmeticOp");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ArithmeticOp");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   Div:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("ArithmeticOp");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("ArithmeticOp");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 ;
 
-opUnario        ::= Sum:op
+UnaryOp        ::= Sum:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("UnaryOp");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("UnaryOp");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   Minus:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("UnaryOp");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("UnaryOp");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :} 
                 ;
 
-opLogico        ::= And:op
+LogicOp        ::= And:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("AND");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("AND");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
                 |   Or:op
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("OR");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("OR");
                     if (op != null) { nPadre.setAttribute("Value",op);}
                     RESULT = nPadre;
                 :}
@@ -1131,15 +1125,15 @@ opLogico        ::= And:op
 
 exprlist        ::= expr:e
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Arguments");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Arguments");
                     if (e != null) { nPadre.appendChild(e);}
                     RESULT = nPadre;
                 :}
                 |   expr:e Comma exprlist:el
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Arguments");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Arguments");
                     if (e != null) { nPadre.appendChild(e);}
                     if (el != null) { 
                         ArrayList<Element> asd = new ArrayList();
@@ -1157,8 +1151,8 @@ exprlist        ::= expr:e
 
 literal         ::= integer:i
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Literal");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Literal");
                     nPadre.setAttribute("Type","integer");
                     nPadre.setAttribute("Value",String.valueOf(i.getAttribute("Value")));
                     nPadre.setAttribute("Line", i.getAttribute("Line"));
@@ -1167,8 +1161,8 @@ literal         ::= integer:i
                 :}
                 |   character:c
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Literal");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Literal");
                     nPadre.setAttribute("Type","char");
                     nPadre.setAttribute("Value",c.getAttribute("Value"));
                     nPadre.setAttribute("Line", c.getAttribute("Line"));
@@ -1177,8 +1171,8 @@ literal         ::= integer:i
                 :}                
                 |   boolean:b
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Literal");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Literal");
                     nPadre.setAttribute("Type","boolean");
                     nPadre.setAttribute("Value",b.getAttribute("Value"));
                     nPadre.setAttribute("Line", b.getAttribute("Line"));
@@ -1187,8 +1181,8 @@ literal         ::= integer:i
                 :}
                 |   string:s
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Literal");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Literal");
                     nPadre.setAttribute("Type","string");
                     nPadre.setAttribute("Value",s.getAttribute("Value"));
                     nPadre.setAttribute("Line", s.getAttribute("Line"));
@@ -1199,8 +1193,8 @@ literal         ::= integer:i
 
 integer         ::= IntLit:i 
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Integer");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Integer");
                     nPadre.setAttribute("Value",i.toString());
                     nPadre.setAttribute("Size","4");
                     nPadre.setAttribute("Line", ileft + "");
@@ -1211,8 +1205,8 @@ integer         ::= IntLit:i
 
 character       ::= CharLit:c
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Character");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Character");
                     nPadre.setAttribute("Value","\'"+c.toString()+"\'");      
                     nPadre.setAttribute("Line", cleft + "");
                     nPadre.setAttribute("Column", cright + "");      
@@ -1222,8 +1216,8 @@ character       ::= CharLit:c
 
 boolean         ::= BooleanLit:b
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("Boolean");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("Boolean");
                     nPadre.setAttribute("Value",b);    
                     nPadre.setAttribute("Line", bleft + "");
                     nPadre.setAttribute("Column", bright + "");      
@@ -1233,8 +1227,8 @@ boolean         ::= BooleanLit:b
 
 string          ::= StringLit:s
                 {:
-                    iniXML();
-                    Element nPadre = xmlDocument.createElement("String");
+                    createXMLFile();
+                    Element nPadre = TreeXML.createElement("String");
                     nPadre.setAttribute("Value","\'"+s+"\'");
                     nPadre.setAttribute("Line", sleft + "");
                     nPadre.setAttribute("Column", sright  + "");

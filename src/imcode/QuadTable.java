@@ -61,7 +61,8 @@ public class QuadTable {
     
     public void print(){
         String Headers = "%-10s %-10s %-10s %-10s %-10s";
-        System.out.println(String.format(Headers,"Quad", "Operacion", "Arg1", "Arg2", "Resultado"));
+        System.out.println("");
+        System.out.println(String.format(Headers,"Quad", "Op", "Arg1", "Arg2", "Res"));
         for (int i = 0; i < cuadruplos.size(); i++) {
             Quad C = cuadruplos.get(i);
             System.out.println(C);

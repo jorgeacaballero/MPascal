@@ -17,9 +17,9 @@ public class SymbolTable {
     String formatBody = "%-20s %-20s %-60s %-15s %-15s %-15s %-15s %-15s %-18s";
 
     public int Add(Simbolo S) throws Exception {
-        int itemIndex = this.getSymbolIndex(S);
-        if(itemIndex > 0) {
-            throw new Exception("Ya existe un elemento " + S.getId() + " en el ambito " + S.getAmbito());
+        int index = this.getSymbolIndex(S);
+        if(index > 0) {
+            throw new Exception("Element " + S.getId() + " already exists in " + S.getAmbito());
         } else {
             Simbolos.add(S);
         }
@@ -45,7 +45,7 @@ public class SymbolTable {
      
      public Simbolo getFunction(String Id) throws Exception {
         for(Simbolo S : Simbolos){
-            if(S.getId().equals(Id) && S.isFuncion()){
+            if(S.getId().equals(Id) && S.isFunction()){
                 return S;
             }
         }  
@@ -54,7 +54,7 @@ public class SymbolTable {
      
     public Simbolo getVariable(String Id, String ambito) throws Exception {
         for(Simbolo S : Simbolos){
-            if(S.getId().equals(Id) && (S.isVariable() || S.isParametro()) && S.getAmbito().equals(ambito)){
+            if(S.getId().equals(Id) && (S.isVariable() || S.isParameter()) && S.getAmbito().equals(ambito)){
                 return S;
             }
         }  
@@ -77,10 +77,7 @@ public class SymbolTable {
         Simbolos.set(index, S);
     }
     
-    private boolean hasSameParameters(Simbolo S1, Simbolo S2) {
-        return false;
-    }
-    
+
     public void clear(){
         Simbolos.clear();
     }
@@ -89,29 +86,29 @@ public class SymbolTable {
     public String toString() {
         String headers = String.format(
                 formatHeader,
-                "ID",
-                "VALOR",
-                "TIPO",
-                "AMBITO",
-                "ES VARIABLE",
-                "ES FUNCION",
-                "ES PARAMETRO",
-                "ES REF",
-                "POSICION MEMORIA"
+                "Id",
+                "Value",
+                "DataType",
+                "Scope",
+                "Variable",
+                "Function",
+                "Parameter",
+                "Reference",
+                "Simulated Memory Position"
         );
         System.out.println(headers);
         for (Simbolo S: Simbolos) {
             String output = String.format(
                     formatBody,
                     S.getId(),
-                    S.getValor(),
-                    S.getTipo(),
+                    S.getValue(),
+                    S.getType(),
                     S.getAmbito(),
                     String.valueOf(S.isVariable()),
-                    String.valueOf(S.isFuncion()),
-                    String.valueOf(S.isParametro()),
+                    String.valueOf(S.isFunction()),
+                    String.valueOf(S.isParameter()),
                     String.valueOf(S.isByRef()),
-                    String.valueOf(S.getPosicionMemoria())
+                    String.valueOf(S.getMemoryPos())
             );
             System.out.println(output);
         }

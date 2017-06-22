@@ -3,7 +3,6 @@ package mpascal;
 
 import java.util.ArrayList;
 import imcode.QuadGen;
-//import org.unitec.compiladores.targetcode.TargetGenerator;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -139,7 +138,7 @@ public class SemAnal {
                     inAFunction = false;
                     if (!tempType.isEmpty()) {
                         tempType += " -> void";
-                        S.setTipo(tempType);
+                        S.setType(tempType);
                         ts.replaceNode(S, indice);
                     }
                     tempType = "";
@@ -160,9 +159,9 @@ public class SemAnal {
                     inAFunction = false;
                     if (!tempType.isEmpty()) {
                         tempType += " -> " + type;
-                        S.setTipo(tempType);
+                        S.setType(tempType);
                     } else {
-                        S.setTipo("void -> " + type);
+                        S.setType("void -> " + type);
                     }
                     ts.replaceNode(S, indice);
                     tempType = "";
@@ -219,7 +218,7 @@ public class SemAnal {
                     
                     if(inAFunction && tipoActual.isEmpty() && S == null){
                         S = ts.getFunction(idValex);
-                        tipoActual = S.getTipo();
+                        tipoActual = S.getType();
                         Element parent = (Element)nodo.getParentNode();
                         parent.setAttribute("Return", "true");
                     }
@@ -228,13 +227,13 @@ public class SemAnal {
                         throwNotFoundError(Linea, Columna, idValex);
                     }
                     
-                    boolean isSameType = S.getTipo().equals(tipoActual);
+                    boolean isSameType = S.getType().equals(tipoActual);
                     if (!tipoActual.isEmpty() && !isSameType) {
-                        String currentType = S.getTipo().split("\\.")[0];
+                        String currentType = S.getType().split("\\.")[0];
                         throwIncompatibleTypeError(Linea, Columna, currentType);
                     } else {
                         if(tipoActual.isEmpty())
-                            tipoActual = S.getTipo();
+                            tipoActual = S.getType();
                     }
                     recorrerArbol(nodo, nodo.getAttribute("Line"), nodo.getAttribute("Column"));
                     break;
@@ -252,7 +251,7 @@ public class SemAnal {
                         throwNotFoundError(Linea, Columna, id);
 
                     }
-                    tipoRetorno = S.getTipo().split(" -> ")[1];
+                    tipoRetorno = S.getType().split(" -> ")[1];
 
                     if (nodo.getChildNodes().getLength() > 1) {
                         comprobarFuncion((Element) nodo.getLastChild());
@@ -263,7 +262,7 @@ public class SemAnal {
                     if (!tipoActual.isEmpty() && !tipoActual.equals(tipoRetorno)) {
                         throwIncompatibleTypeError(Linea, Columna, tipoRetorno);
                     }
-                    if (!tipoFuncion.equals(S.getTipo())) {
+                    if (!tipoFuncion.equals(S.getType())) {
                         throwFunctionArgsError(Linea, Columna, id);
                     }
                     tipoFuncion = tipoBKP;
@@ -320,10 +319,10 @@ public class SemAnal {
 
                     if (S == null) {
                         throwNotFoundError(Linea, Columna, id);
-                    } else if (!S.getTipo().startsWith("Array")) {
+                    } else if (!S.getType().startsWith("Array")) {
                         throwIlegalExpresionError(Linea, Columna);
                     } else {
-                        String tipo = S.getTipo().split("\\.")[1];
+                        String tipo = S.getType().split("\\.")[1];
                         String tipoBKP = tipoActual;
                         if (tipoActual.isEmpty()) {
                             System.out.println("1");
@@ -382,16 +381,16 @@ public class SemAnal {
                         throwNotFoundError(Line, Column, id);
 
                     } else {
-                        boolean isSameType = S.getTipo().equals(tipoActual);
+                        boolean isSameType = S.getType().equals(tipoActual);
                         if (!tipoActual.isEmpty() && !isSameType) {
 
                             String Line = nodo.getAttribute("Line");
                             String Column = nodo.getAttribute("Column");
-                            String currentType = S.getTipo().split("\\.")[0];
+                            String currentType = S.getType().split("\\.")[0];
                             throwIncompatibleTypeError(Line, Column, currentType);
 
                         } else {
-                            tipoActual = S.getTipo();
+                            tipoActual = S.getType();
                         }
                     }
                     break;
@@ -413,10 +412,10 @@ public class SemAnal {
                     String Columna = nodo.getAttribute("Column");
                     if (S == null) {
                         throwNotFoundError(Linea, Columna, id);
-                    } else if (!S.getTipo().startsWith("Array")) {
+                    } else if (!S.getType().startsWith("Array")) {
                         throwIlegalExpresionError(Linea, Columna);
                     } else {
-                        String tipo = S.getTipo().split("\\.")[1];
+                        String tipo = S.getType().split("\\.")[1];
                         String tipoBKP = tipoActual;
                         if (tipoActual.isEmpty()) {
                             tipoActual = "integer";
@@ -471,12 +470,12 @@ public class SemAnal {
                         throwNotFoundError(Line, Column, id);
 
                     } else {
-                        boolean isInteger = S.getTipo().equals("integer");
+                        boolean isInteger = S.getType().equals("integer");
                         if (!tipoActual.isEmpty() && !isInteger) {
 
                             String Line = nodo.getAttribute("Line");
                             String Column = nodo.getAttribute("Column");
-                            String currentType = S.getTipo().split("\\.")[0];
+                            String currentType = S.getType().split("\\.")[0];
                             throwIncompatibleTypeError(Line, Column, currentType);
 
                         } else {
@@ -492,10 +491,10 @@ public class SemAnal {
                     String Columna = nodo.getAttribute("Column");
                     if (S == null) {
                         throwNotFoundError(Linea, Columna, id);
-                    } else if (!S.getTipo().startsWith("Array")) {
+                    } else if (!S.getType().startsWith("Array")) {
                         throwIlegalExpresionError(Linea, Columna);
                     } else {
-                        String tipo = S.getTipo().split("\\.")[1];
+                        String tipo = S.getType().split("\\.")[1];
                         String tipoBKP = tipoActual;
                         boolean isInteger = tipo.equals("integer");
                         if (tipoActual.isEmpty()) {
@@ -537,9 +536,9 @@ public class SemAnal {
 
                     }
                     if (tipoFuncion.isEmpty()) {
-                        tipoFuncion += S.getTipo();
+                        tipoFuncion += S.getType();
                     } else {
-                        tipoFuncion += "X" + S.getTipo();
+                        tipoFuncion += "X" + S.getType();
                     }
                     break;
                 }
@@ -622,7 +621,7 @@ public class SemAnal {
                     if (S == null) {
                         throwNotFoundError(Linea, Columna, id);
                     }
-                    tipoRetorno = S.getTipo().split(" -> ")[1];
+                    tipoRetorno = S.getType().split(" -> ")[1];
 
                     if (nodo.getChildNodes().getLength() > 1) {
                         comprobarFuncion((Element) nodo.getLastChild());
@@ -633,7 +632,7 @@ public class SemAnal {
                     if (!tipoActual.equals(tipoRetorno)) {
                         throwIncompatibleTypeError(Linea, Columna, tipoRetorno);
                     }
-                    if (!tipoFuncion.equals(S.getTipo())) {
+                    if (!tipoFuncion.equals(S.getType())) {
                         throwFunctionArgsError(Linea, Columna, id);
                     }
                     tipoFuncion = tipoBKP;

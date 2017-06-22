@@ -17,5 +17,8 @@ nbproject/project.properties
 nbproject/build-impl.xml
 nbproject/genfiles.properties
 
-src/pascal/compiler/Lexer.java~
-src/pascal/compiler/Lexer.java
+src/mpascal/compiler/Lexer.java~
+src/mpascal/compiler/Lexer.java
+/dist/
+
+src/mpascal/Parser.java
