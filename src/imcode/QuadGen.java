@@ -1044,7 +1044,7 @@ public class QuadGen {
         String[] splitList = lista.split(",");
         for (String indexS : splitList) {
             int index = Integer.valueOf(indexS);
-            Quad quad = Quads.cuadruplos.get(index);
+            Quad quad = Quads.quads.get(index);
             if (quad.op.equals("GOTO")) {
                 quad.arg1 = quadIndex + "";
             } else {

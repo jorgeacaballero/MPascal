@@ -5,6 +5,10 @@
  */
 package mpascal;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 /**
@@ -96,21 +100,44 @@ public class SymbolTable {
                 "Reference",
                 "Simulated Memory Position"
         );
-        System.out.println(headers);
-        for (Simbolo S: Simbolos) {
-            String output = String.format(
-                    formatBody,
-                    S.getId(),
-                    S.getValue(),
-                    S.getType(),
-                    S.getAmbito(),
-                    String.valueOf(S.isVariable()),
-                    String.valueOf(S.isFunction()),
-                    String.valueOf(S.isParameter()),
-                    String.valueOf(S.isByRef()),
-                    String.valueOf(S.getMemoryPos())
+//        System.out.println(headers);
+//        for (Simbolo S: Simbolos) {
+//            String output = String.format(
+//                    formatBody,
+//                    S.getId(),
+//                    S.getValue(),
+//                    S.getType(),
+//                    S.getAmbito(),
+//                    String.valueOf(S.isVariable()),
+//                    String.valueOf(S.isFunction()),
+//                    String.valueOf(S.isParameter()),
+//                    String.valueOf(S.isByRef()),
+//                    String.valueOf(S.getMemoryPos())
+//            );
+//            System.out.println(output);
+//        }
+        
+        try (FileWriter fw = new FileWriter("./SymTable.txt", false);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter out = new PrintWriter(bw)) {
+            out.println(headers);
+            for (Simbolo S: Simbolos) {
+                String output = String.format(
+                formatBody,
+                S.getId(),
+                S.getValue(),
+                S.getType(),
+                S.getAmbito(),
+                String.valueOf(S.isVariable()),
+                String.valueOf(S.isFunction()),
+                String.valueOf(S.isParameter()),
+                String.valueOf(S.isByRef()),
+                String.valueOf(S.getMemoryPos())
             );
-            System.out.println(output);
+            out.println(output);
+        }
+        } catch (IOException e) {
+            //exception handling left as an exercise for the reader
         }
 
         return "";
