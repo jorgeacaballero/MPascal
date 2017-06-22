@@ -19,3 +19,4 @@ nbproject/genfiles.properties
 
 src/pascal/compiler/Lexer.java~
 src/pascal/compiler/Lexer.java
+/dist/

@@ -11,15 +11,15 @@ package mpascal;
  */
 public class Simbolo {
     private String id;
-    private String valor;
-    private String tipo;
+    private String value;
+    private String type;
     private String ambito;
     private int refIndex = -1;
     private boolean variable = false;
-    private boolean funcion = false;
-    private boolean parametro = false;
+    private boolean function = false;
+    private boolean parameter = false;
     private boolean byRef = false;
-    private int posicionMemoria;
+    private int memoryPos;
 
     public int getRefIndex() {
         return refIndex;
@@ -48,40 +48,40 @@ public class Simbolo {
     
     public Simbolo() {
         this.id = "";
-        this.valor = "";
-        this.tipo = "";
+        this.value = "";
+        this.type = "";
         this.variable = false;
-        this.funcion = false;
-        this.parametro = false;
-        this.posicionMemoria = 0;
+        this.function = false;
+        this.parameter = false;
+        this.memoryPos = 0;
         
     }
     
-     public Simbolo(String id, String valor, String tipo) {
+     public Simbolo(String id, String value, String type) {
         this.id = id;
-        this.tipo = tipo;
-        this.valor = valor;
+        this.type = type;
+        this.value = value;
         this.ambito = null;
     }
     
-    public Simbolo(String id, String valor, String tipo, String ambito) {
+    public Simbolo(String id, String value, String type, String ambito) {
         this.id = id;
-        this.tipo = tipo;
-        this.valor = valor;
+        this.type = type;
+        this.value = value;
         this.ambito = ambito;
     }
     
     
     
-    public Simbolo(String id, String valor, String tipo, String ambito, boolean variable, boolean funcion, boolean parametro, int posicionMemoria) {
+    public Simbolo(String id, String value, String type, String ambito, boolean variable, boolean function, boolean parameter, int memoryPos) {
         this.id = id;
-        this.valor = valor;
-        this.tipo = tipo;
+        this.value = value;
+        this.type = type;
         this.ambito = ambito;
         this.variable = variable;
-        this.funcion = funcion;
-        this.parametro = parametro;
-        this.posicionMemoria = posicionMemoria;
+        this.function = function;
+        this.parameter = parameter;
+        this.memoryPos = memoryPos;
     }
 
     public String getId() {
@@ -92,20 +92,20 @@ public class Simbolo {
         this.id = id;
     }
 
-    public String getValor() {
-        return valor;
+    public String getValue() {
+        return value;
     }
 
-    public void setValor(String valor) {
-        this.valor = valor;
+    public void setValue(String value) {
+        this.value = value;
     }
 
-    public String getTipo() {
-        return tipo;
+    public String getType() {
+        return type;
     }
 
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
+    public void setType(String type) {
+        this.type = type;
     }
 
     public boolean isVariable() {
@@ -116,28 +116,28 @@ public class Simbolo {
         this.variable = variable;
     }
 
-    public boolean isFuncion() {
-        return funcion;
+    public boolean isFunction() {
+        return function;
     }
 
-    public void setFuncion(boolean funcion) {
-        this.funcion = funcion;
+    public void setFunction(boolean function) {
+        this.function = function;
     }
 
-    public boolean isParametro() {
-        return parametro;
+    public boolean isParameter() {
+        return parameter;
     }
 
-    public void setParametro(boolean parametro) {
-        this.parametro = parametro;
+    public void setParameter(boolean parameter) {
+        this.parameter = parameter;
     }
 
-    public int getPosicionMemoria() {
-        return posicionMemoria;
+    public int getMemoryPos() {
+        return memoryPos;
     }
 
-    public void setPosicionMemoria(int posicionMemoria) {
-        this.posicionMemoria = posicionMemoria;
+    public void setMemoryPos(int memoryPos) {
+        this.memoryPos = memoryPos;
     }
 
 }

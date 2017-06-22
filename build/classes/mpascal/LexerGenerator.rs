@@ -1,1 +1,0 @@
-mini.pascal.compiler.LexerGenerator

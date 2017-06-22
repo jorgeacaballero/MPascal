@@ -375,7 +375,7 @@ public class QuadGen {
             String argName = arg.getNodeName();
             String Valex = arg1.getAttribute("Value");
             Simbolo S = TS.getVariable(Valex, ambitoActual);
-            String tipo = S.getTipo();
+            String tipo = S.getType();
             String indiceInicial = tipo.split("\\.")[2];
             if (argName.equals("ID") || argName.equals("Literal")) {
                 String Valex2 = arg.getAttribute("Value");
@@ -449,7 +449,7 @@ public class QuadGen {
         String operacion = "=[]";
         String IDArray = nodo.getAttribute("Value");
         Simbolo S = TS.getVariable(IDArray, ambitoActual);
-        String tipo = S.getTipo();
+        String tipo = S.getType();
         String indiceInicial = tipo.split("\\.")[2];
         System.out.println("------" + IDArray);
         if (argName.equals("ID") || argName.equals("Literal")) {
