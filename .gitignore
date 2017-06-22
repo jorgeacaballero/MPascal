@@ -16,7 +16,9 @@ hs_err_pid*
 nbproject/project.properties
 nbproject/build-impl.xml
 nbproject/genfiles.properties
-
-src/pascal/compiler/Lexer.java~
-src/pascal/compiler/Lexer.java
 /dist/
+
+build/classes/mpascal/CUP$Parser$actions.class
+build/classes/mpascal/Parser.class
+src/mpascal/Parser.java
+src/mpascal/sym.java
