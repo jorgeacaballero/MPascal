@@ -24,41 +24,19 @@ parser code {:
 	public void report_error(String message, Object info) {
             System.err.print("Syntax error: " ); 
             //expected();
-            System.err.println("pero se encontró el token \'" + ((Symbol)info).value + "\' en la Linea: " + ((Symbol)info).left + ", Columna: " + ((Symbol)info).right + ". " ); 
+            System.err.println("found token \'" + ((Symbol)info).value + "\' at line: " + ((Symbol)info).left + ", column: " + ((Symbol)info).right + ". " ); 
         }
 
         @Override
 	public void syntax_error(Symbol s){
-            System.err.print("Error Sintáctico: " ); 
+            System.err.print("Syntax errors: " ); 
             //expected();
-            //System.err.println("pero se encontró el token \'" + sym.terminalNames[s.sym] + "\' en la Linea: " + s.left + ", Columna: " + s.right + ". " ); 
+            //System.err.println("pero se encontró el token \'" + sym.terminalNames[s.sym] + "\' en la Linea: " + s.left + ", column: " + s.right + ". " ); 
 	}
 
-        /*
-        public void expected(){
-            List<Integer> token_list = this.expected_token_ids();
-            if (token_list.size() <= 0){
-                    token_list = this.expected_token_ids();
-            }
-            String expected_tokens = "";
-            for (int i = 0 ; i < token_list.size(); i++){
-                    int id = token_list.get(i);
-                    if (id == 1){ //error
-                        continue;
-                    }
-                    String terminal_name = sym.terminalNames[id];
-                    if (i == token_list.size() - 1){
-                        expected_tokens += terminal_name;
-                    }else{
-                        expected_tokens += terminal_name + " , ";
-                    }
-            }
-            System.err.print("Se esperaba alguno de los siguientes tokens: [" + expected_tokens + "] ");
-        };
-        */
 
         public void report_fatal_error(String message, Object info) {
-            throw new Error("Error Fatal Sintáctico, no se pudo recuperar del problema.");
+            throw new Error("Fatal error, couldn't recover.");
         }
 
         public void unrecovered_syntax_error(Symbol s) {
@@ -110,14 +88,6 @@ action code {:
 terminal Element  Write;
 terminal Element  Read;
 
-//Tipos de datos
-terminal Element  Array;
-terminal Element  Of;
-terminal Element  Var;
-terminal String   Boolean;
-terminal String   Char;
-terminal String   Integer;
-terminal String   String;
 
 //Operadores
 terminal String   Equal;
@@ -149,6 +119,14 @@ terminal Element  While;
 terminal Element  Repeat;
 terminal Element  Until;
 
+//Tipos de datos
+terminal Element  Array;
+terminal Element  Of;
+terminal Element  Var;
+terminal String   Boolean;
+terminal String   Char;
+terminal String   Integer;
+terminal String   String;
 //Otros
 terminal String   LBracket;
 terminal String   RBracket;
@@ -156,8 +134,6 @@ terminal String   Comma;
 terminal String   Colon;
 terminal String   Assign;
 terminal String   Id;
-terminal String   LCbracket;
-terminal String   RCbracket;
 terminal String   LPar;
 terminal String   RPar;
 terminal String   Program;
@@ -207,8 +183,6 @@ nonterminal Element              vars;
 nonterminal Element              var;
 
 nonterminal Element              exprlist;
-nonterminal Element              exprLogical;
-nonterminal Element              exprOpLog;
 nonterminal Element              opRelacion;
 nonterminal Element              opArit;
 nonterminal Element              opUnario;
@@ -984,6 +958,18 @@ AritExpr3       ::= literal:l
                     
                 :}
                 |  opUnario:op AritExpr3:e1
+                {:
+                    iniXML();
+                    op.appendChild(e1);
+                    RESULT = op;
+                :}
+                |  opLogico:op AritExpr3:e1
+                {:
+                    iniXML();
+                    op.appendChild(e1);
+                    RESULT = op;
+                :}
+                |  opArit:op AritExpr3:e1
                 {:
                     iniXML();
                     op.appendChild(e1);
