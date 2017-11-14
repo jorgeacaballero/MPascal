@@ -7,35 +7,11 @@ var
  myarray, myarray2 : array[1..5] of integer;
  unbool : boolean;
 
-function maxx(num1, num2 : integer): integer;
-var
- result: integer;
-
-begin
- if (num1 > num2) then
-  result := num1
- else
-  result := num2;
- max := result
-end;
-
-procedure findMin(x, y, z: integer; var m: integer);
-
-begin
- if x < y then
-  m:= x
- else
-  m:= y;
-
- if z < m then
-  m:= z
-end;
-
 procedure findMax(x, y, z: integer; var m: integer);
 
 begin
  if x < y then
-  m:= x
+  m:= x + 1;
  else
   m:= y;
 
@@ -51,9 +27,13 @@ begin
  num := 2;
  char2 := 'd';
  color := 'rojo';
- findMin(a, b, c, min);
  findMax(a, b, c, max);
- ret := maxx(a, b);
+ 
+
+
+ if a > b then
+ a:= a + 1;
+ 
 
  for ii := 1 to size do
  begin

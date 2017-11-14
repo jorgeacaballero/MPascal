@@ -16,7 +16,7 @@ import java.util.ArrayList;
  * @author jmlb
  */
 public class SymbolTable {
-    public ArrayList<Simbolo> Simbolos = new ArrayList();
+    public ArrayList<Simbolo> symbols = new ArrayList();
     String formatHeader = "%-20s %-20s %-60s %-15s %-15s %-15s %-15s %-15s %-18s";
     String formatBody = "%-20s %-20s %-60s %-15s %-15s %-15s %-15s %-15s %-18s";
 
@@ -25,21 +25,21 @@ public class SymbolTable {
         if(index > 0) {
             throw new Exception("Element " + S.getId() + " already exists in " + S.getAmbito());
         } else {
-            Simbolos.add(S);
+            symbols.add(S);
         }
-        return Simbolos.size() -1;
+        return symbols.size() -1;
     }
     
     public Simbolo getSimbolo(int index) throws Exception {
-        if(index >= 0 && index < Simbolos.size()){
-            return Simbolos.get(index);
+        if(index >= 0 && index < symbols.size()){
+            return symbols.get(index);
         } else {
             throw new Exception("Symbol not found");
         }
     }
     
      public Simbolo getVariable(String Id) throws Exception {
-        for(Simbolo S : Simbolos){
+        for(Simbolo S : symbols){
             if(S.getId().equals(Id) && S.isVariable()){
                 return S;
             }
@@ -48,7 +48,7 @@ public class SymbolTable {
     }
      
      public Simbolo getFunction(String Id) throws Exception {
-        for(Simbolo S : Simbolos){
+        for(Simbolo S : symbols){
             if(S.getId().equals(Id) && S.isFunction()){
                 return S;
             }
@@ -57,7 +57,7 @@ public class SymbolTable {
     }
      
     public Simbolo getVariable(String Id, String ambito) throws Exception {
-        for(Simbolo S : Simbolos){
+        for(Simbolo S : symbols){
             if(S.getId().equals(Id) && (S.isVariable() || S.isParameter()) && S.getAmbito().equals(ambito)){
                 return S;
             }
@@ -66,8 +66,8 @@ public class SymbolTable {
     }
     
     public int getSymbolIndex(Simbolo S){
-        for (int i = 0; i < Simbolos.size(); i++) {
-            Simbolo St = Simbolos.get(i);
+        for (int i = 0; i < symbols.size(); i++) {
+            Simbolo St = symbols.get(i);
             boolean hasSameName = S.getId().equals(St.getId());
             boolean hasSameScope = S.getAmbito().equals(St.getAmbito());
             if( hasSameName && hasSameScope){
@@ -78,12 +78,12 @@ public class SymbolTable {
     } 
     
     public void replaceNode(Simbolo S, int index) {
-        Simbolos.set(index, S);
+        symbols.set(index, S);
     }
     
 
     public void clear(){
-        Simbolos.clear();
+        symbols.clear();
     }
     
     @Override
@@ -101,7 +101,7 @@ public class SymbolTable {
                 "Simulated Memory Position"
         );
 //        System.out.println(headers);
-//        for (Simbolo S: Simbolos) {
+//        for (Simbolo S: symbols) {
 //            String output = String.format(
 //                    formatBody,
 //                    S.getId(),
@@ -121,7 +121,7 @@ public class SymbolTable {
             BufferedWriter bw = new BufferedWriter(fw);
             PrintWriter out = new PrintWriter(bw)) {
             out.println(headers);
-            for (Simbolo S: Simbolos) {
+            for (Simbolo S: symbols) {
                 String output = String.format(
                 formatBody,
                 S.getId(),
@@ -137,7 +137,7 @@ public class SymbolTable {
             out.println(output);
         }
         } catch (IOException e) {
-            //exception handling left as an exercise for the reader
+            
         }
 
         return "";

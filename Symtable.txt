@@ -1,0 +1,7 @@
+Id                   Value                DataType                                                     Scope           Variable        Function        Parameter       Reference       Simulated Memory Position
+Num1                 null                 integer                                                      main            true            false           false           false           0                 
+Num2                 null                 integer                                                      main            true            false           false           false           4                 
+Sum                  null                 integer                                                      main            true            false           false           false           8                 
+Str1                 null                 string                                                       main            true            false           false           false           12                
+Str2                 null                 string                                                       main            true            false           false           false           16                
+Concat               null                 string                                                       main            true            false           false           false           20                

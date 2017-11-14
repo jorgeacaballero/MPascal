@@ -8,7 +8,7 @@ var
 begin
  num := 2;
  char2 := 'd';
- color := "rojo";
+ color := 'rojo';
  if (num > 2) then
   fact := 11
  else

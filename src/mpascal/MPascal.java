@@ -29,7 +29,7 @@ public class MPascal {
         CupGenerator.main(args);
         Reader reader;
         try {
-            reader = new BufferedReader(new FileReader("./test/fun_procs.pas"));
+            reader = new BufferedReader(new FileReader("./test/sum.pas"));
             Flexer lexer = new Flexer(reader);
             
             Parser cupParser = new Parser(lexer);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import imcode.QuadGen;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import fcode.TargetGenerator;
 
 /**
  *
@@ -38,6 +39,9 @@ public class SemAnal {
             G.parseTree(fatherNode);
             G.print();
             System.err.println("------------------------------------------------------------------------");
+            TargetGenerator TG = new TargetGenerator(symtable, G.getQuadTable());
+            TG.generateFinalCode();
+            TG.printTargetCode();
         }
         return symtable;
     }
