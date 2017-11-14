@@ -307,7 +307,7 @@ public class TargetGenerator {
     }
 
     public void printTargetCode() {
-        cft.print();
+        //cft.print();
     }
 
     public String newLabel() {
