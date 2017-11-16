@@ -18,7 +18,10 @@ nbproject/build-impl.xml
 nbproject/genfiles.properties
 /dist/
 
-build/classes/mpascal/CUP$Parser$actions.class
-build/classes/mpascal/Parser.class
-src/mpascal/Parser.java
-src/mpascal/sym.java
+src/main/java/mpascal2/Parser.java
+src/main/java/mpascal2/sym.java
+Quads.txt
+SymTable.txt
+MIPSFinalCode.s
+AST.xml
+
