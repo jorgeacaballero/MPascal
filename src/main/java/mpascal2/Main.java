@@ -16,7 +16,7 @@ public class Main {
         PascalFlexer scanner;
         Parser parser = null;
         try {
-            BufferedReader br = new BufferedReader(new FileReader("./src/main/resources/Bueno2.pas"));
+            BufferedReader br = new BufferedReader(new FileReader("./src/main/resources/fun_procs.pas"));
             scanner = new PascalFlexer(br);
             parser = new Parser(scanner);
             Symbol Sym = parser.parse();
