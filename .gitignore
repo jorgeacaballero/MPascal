@@ -7,7 +7,6 @@
 # Package Files #
 *.war
 *.ear
-*.java~
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -21,6 +20,10 @@ nbproject/genfiles.properties
 
 src/main/java/mpascal2/Parser.java
 src/main/java/mpascal2/sym.java
+src/main/java/mpascal2/Flexer.java~
+src/main/java/mpascal2/FlexerWordsA.java~
+src/main/java/mpascal2/Lexer.java~
+src/main/java/mpascal2/PascalFlexer.java~
 Quads.txt
 SymTable.txt
 MIPSFinalCode.s
